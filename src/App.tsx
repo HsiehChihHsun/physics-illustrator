@@ -681,7 +681,7 @@ function App() {
 
     const serializer = new XMLSerializer();
     const svgString = serializer.serializeToString(clonedSvg);
-    const filename = `drawphy_export_${Date.now()}.${format}`;
+    const filename = `vekton_export_${Date.now()}.${format}`;
 
     if (format === 'svg') {
       const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
@@ -747,7 +747,7 @@ function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `drawphy_scene_${Date.now()}.json`;
+    link.download = `vekton_scene_${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -792,8 +792,8 @@ function App() {
       {/* HEADER */}
       <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-between items-center z-10 shadow-sm h-12">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-gray-800 tracking-tight">DrawPhy</h1>
-          <span className="text-xs text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded">v0.9 Beta</span>
+          <h1 className="text-xl text-gray-800 tracking-tight"><span className="font-bold">VEKTON</span> | Physics Illustrator</h1>
+          <span className="text-xs text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded">v0.97 Beta</span>
         </div>
         <div className="flex gap-2">
           <button onClick={undo} disabled={!canUndo} className={`px-2 py-1 text-xs rounded font-medium transition-colors ${canUndo ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-400'}`}>Undo (Ctrl+Z)</button>
