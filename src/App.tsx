@@ -7,7 +7,8 @@ import { VectorRenderer } from './components/VectorComponents';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import type { PropertyConfig } from './components/PropertiesPanel';
 import { Toolbar } from './components/Toolbar';
-import type { ToolType } from './components/Toolbar';
+import { Sidebar } from './components/Sidebar';
+import type { ToolType } from './components/Sidebar';
 import { Vector2, Point } from './geometry/Vector2';
 import { useCanvasInteraction } from './hooks/useCanvasInteraction';
 import { useHistory } from './hooks/useHistory';
@@ -60,7 +61,7 @@ function App() {
   // Phase 12: Layout & Canvas State
   const [canvasMode, setCanvasMode] = useState<'small' | 'large'>('small');
   const [zoom, setZoom] = useState(0.5); // Default 50%
-  const [panelWidth, setPanelWidth] = useState(200); // Default 200px
+  const [panelWidth, setPanelWidth] = useState(250); // Default 250px (Increased by 25%)
   const [isResizing, setIsResizing] = useState(false);
 
   const canvasPx = canvasMode === 'small' ? 1200 : 2400;
@@ -357,6 +358,9 @@ function App() {
     pushState(objects);
   }, [objects, pushState]);
 
+  // --- Phase 13: Font Selection ---
+  const [fontFamily, setFontFamily] = useState<'Inter' | 'STIX Two Text'>('Inter');
+
   // --- 1. Interaction Hook ---
   const {
     cursor,
@@ -412,6 +416,8 @@ function App() {
           props: [
             { label: 'Mass Label', type: 'text', value: o.massLabel, onChange: (v) => handlePropertyChange('massLabel', v) },
             { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
+            { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
+            { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
             { label: 'Width (Units)', type: 'number', value: toUnit(o.size.x), min: 2, max: 50, step: 1, onChange: (v) => handlePropertyChange('size', new Vector2(fromUnit(v), o.size.y)) },
             { label: 'Height (Units)', type: 'number', value: toUnit(o.size.y), min: 2, max: 50, step: 1, onChange: (v) => handlePropertyChange('size', new Vector2(o.size.x, fromUnit(v))) },
             { label: 'Rotation (°)', type: 'range', value: Math.round(o.rotation * 180 / Math.PI), min: 0, max: 360, step: 1, onChange: (v) => handlePropertyChange('rotation', v * Math.PI / 180) }
@@ -471,6 +477,8 @@ function App() {
             { label: 'Color', type: 'color', value: o.color || 'black', onChange: (v) => handlePropertyChange('color', v) },
             { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) },
             { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
+            { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
+            { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
             { label: 'Components', type: 'boolean', value: o.showComponents, onChange: (v) => handlePropertyChange('showComponents', v) }
           ]
         };
@@ -481,7 +489,39 @@ function App() {
           title: 'Text',
           props: [
             { label: 'Content', type: 'text', value: o.content, onChange: (v) => handlePropertyChange('content', v) },
-            { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }
+            { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
+            { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
+            { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
+
+            // KaTeX Section
+            { label: '', type: 'separator', value: null, onChange: () => { } },
+            { label: 'Katex Function', type: 'note', value: 'Use these buttons to insert math symbols (SVG Only Export)', onChange: () => { } },
+            {
+              label: '',
+              type: 'action-group',
+              value: null,
+              actions: [
+                { label: 'θ', value: '$$\\theta$$' },
+                { label: 'φ', value: '$$\\phi$$' },
+                { label: 'λ', value: '$$\\lambda$$' },
+                { label: 'α', value: '$$\\alpha$$' },
+                { label: 'β', value: '$$\\beta$$' },
+                { label: 'μ', value: '$$\\mu$$' },
+                { label: 'ρ', value: '$$\\rho$$' },
+                { label: 'Δ', value: '$$\\Delta$$' },
+                { label: 'Ω', value: '$$\\Omega$$' },
+                { label: 'π', value: '$$\\pi$$' },
+                { label: '√x', value: '$$\\sqrt{x}$$' },
+                { label: 'F→', value: '$$\\vec{F}$$' },
+                { label: 'v→', value: '$$\\vec{v}$$' },
+                { label: 'c/d', value: '$$\\frac{c}{d}$$' },
+                { label: 'Ek', value: '$$\\frac{1}{2}mv^2$$' },
+                { label: 'm₁', value: '$$m_1$$' }
+              ],
+              onChange: (v) => handlePropertyChange('content', v)
+            },
+            { label: '', type: 'separator', value: null, onChange: () => { } },
+            { label: 'KaTeX Docs', type: 'link', value: 'https://katex.org/docs/supported.html', onChange: () => { } }
           ]
         };
       }
@@ -494,6 +534,8 @@ function App() {
             { label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) },
             { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) },
             { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
+            { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
+            { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
             { label: 'Coil Count', type: 'range', value: o.coils, min: 5, max: 50, step: 1, onChange: (v) => handlePropertyChange('coils', v) },
             { label: 'Width (Units)', type: 'number', value: toUnit(o.width), min: 0.5, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }
           ]
@@ -622,6 +664,21 @@ function App() {
     clonedSvg.setAttribute('width', `${width * 2}px`); // High Res export
     clonedSvg.setAttribute('height', `${height * 2}px`);
 
+    // 4. Inject Styles for KaTeX and Fonts
+    // We use @import to ensure the standalone SVG has access to the necessary resources.
+    const style = document.createElement('style');
+    style.textContent = `
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+      @import url('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css');
+      
+      /* Hide the accessible MathML, show the visual HTML */
+      .katex-mathml { display: none; }
+      
+      /* Ensure foreignObject doesn't clip */
+      foreignObject { overflow: visible; }
+    `;
+    clonedSvg.insertBefore(style, clonedSvg.firstChild);
+
     const serializer = new XMLSerializer();
     const svgString = serializer.serializeToString(clonedSvg);
     const filename = `drawphy_export_${Date.now()}.${format}`;
@@ -654,12 +711,30 @@ function App() {
 
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const pngUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = pngUrl;
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(url);
+        try {
+          const pngUrl = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = pngUrl;
+          link.download = filename;
+          link.click();
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.warn("PNG export blocked by browser security (tainted canvas). Falling back to SVG.", e);
+          alert("PNG export failed because the browser blocked the conversion of external fonts/math (SecurityError). Downloading as SVG instead.");
+
+          // Fallback to SVG
+          const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+          const svgUrl = URL.createObjectURL(svgBlob);
+          const link = document.createElement('a');
+          link.href = svgUrl;
+          link.download = filename.replace('.png', '.svg');
+          link.click();
+          URL.revokeObjectURL(svgUrl);
+        }
+      };
+      img.onerror = (e) => {
+        console.error("PNG export failed. Likely due to taint issues with foreignObject or external imports.", e);
+        alert("PNG export failed. This browser might block 'foreignObject' rendering in Canvas. Please try SVG export.");
       };
       img.src = url;
     }
@@ -712,7 +787,7 @@ function App() {
 
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden font-sans bg-gray-100" onMouseUp={handleMouseUp}>
+    <div className="flex flex-col h-screen overflow-hidden font-sans bg-white" onMouseUp={handleMouseUp}>
 
       {/* HEADER */}
       <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-between items-center z-10 shadow-sm h-12">
@@ -726,37 +801,43 @@ function App() {
         </div>
       </div>
 
+      <div className="flex-shrink-0 z-20 hover:z-30 relative">
+        <Toolbar
+          onDelete={handleDelete}
+          canDelete={!!selectedId}
+          onSave={handleSave}
+          onLoad={handleLoad}
+          onExport={handleExport}
+          showSnap={showSnap}
+          onToggleSnap={() => setShowSnap(!showSnap)}
+          gridDensity={gridDensity}
+          onGridDensityChange={setGridDensity}
+          canvasMode={canvasMode}
+          onCanvasModeChange={setCanvasMode}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          fontFamily={fontFamily}
+          onFontChange={setFontFamily}
+        />
+      </div>
+
       <div className="flex-1 flex flex-row overflow-hidden">
-        {/* LEFT: Canvas Area */}
+        {/* LEFT TOOLBAR */}
+        <Sidebar onAdd={handleAddObject} />
+
+        {/* CENTER: Canvas Area */}
         <div className="flex-1 flex flex-col min-w-0 bg-gray-100/50">
 
-          <div className="px-4 pt-2 flex-shrink-0 z-10 transform translate-y-0">
-            <Toolbar
-              onAdd={handleAddObject}
-              onDelete={handleDelete}
-              canDelete={!!selectedId}
-              onSave={handleSave}
-              onLoad={handleLoad}
-              onExport={handleExport}
-              showSnap={showSnap}
-              onToggleSnap={() => setShowSnap(!showSnap)}
-              gridDensity={gridDensity}
-              onGridDensityChange={setGridDensity}
-              canvasMode={canvasMode}
-              onCanvasModeChange={setCanvasMode}
-              zoom={zoom}
-              onZoomChange={setZoom}
-            />
-          </div>
-
           {/* SCROLLABLE CANVAS CONTAINER */}
-          <div className="flex-1 overflow-auto p-8 relative flex items-start justify-center cursor-crosshair bg-gray-200/50"
+          {/* SCROLLABLE CANVAS CONTAINER */}
+          {/* Fix: Use flex + m-auto for centering to avoid clipping when zoomed in */}
+          <div className="flex-1 overflow-auto relative flex cursor-crosshair bg-[#f9f9f9]"
             onMouseMove={handleMouseMove}
             onMouseDown={handleMouseDown}
           >
             <div
               ref={canvasRef}
-              className="bg-white shadow-lg border border-gray-200 relative shrink-0 transition-all duration-200"
+              className="relative shrink-0 transition-all duration-200 border border-dashed border-gray-300 box-content m-auto"
               style={{ width: canvasPx * zoom, height: canvasPx * zoom }}
             >
               <div className="absolute top-0 left-0 bg-blue-50/80 text-blue-800 text-[10px] px-2 py-1 z-10 font-medium backdrop-blur-sm pointer-events-none whitespace-nowrap overflow-hidden max-w-full text-ellipsis">
@@ -787,11 +868,12 @@ function App() {
                   .map(obj => {
                     switch (obj.type) {
                       case 'spring':
-                        return <SpringRenderer key={obj.id} start={(obj as SpringObject).start} end={(obj as SpringObject).end} coils={(obj as SpringObject).coils} width={(obj as SpringObject).width} style={(obj as SpringObject).style} label={(obj as SpringObject).label} flipLabel={(obj as SpringObject).flipLabel} fontSize={(obj as SpringObject).fontSize} spiralStart={(obj as SpringObject).spiralStart} spiralEnd={(obj as SpringObject).spiralEnd} />;
+                        return <SpringRenderer key={obj.id} start={(obj as SpringObject).start} end={(obj as SpringObject).end} coils={(obj as SpringObject).coils} width={(obj as SpringObject).width} style={(obj as SpringObject).style} label={(obj as SpringObject).label} flipLabel={(obj as SpringObject).flipLabel} fontSize={(obj as SpringObject).fontSize} spiralStart={(obj as SpringObject).spiralStart} spiralEnd={(obj as SpringObject).spiralEnd} fontFamily={fontFamily} bold={(obj as SpringObject).bold} italic={(obj as SpringObject).italic} />;
                       case 'wall':
                         return <WallRenderer key={obj.id} start={(obj as WallObject).start} end={(obj as WallObject).end} hatchAngle={(obj as WallObject).hatchAngle} />;
                       case 'block':
-                        return <BlockRenderer key={obj.id} center={(obj as BlockObject).center} size={(obj as BlockObject).size} mass={(obj as BlockObject).massLabel} rotation={(obj as BlockObject).rotation} />;
+                        return <BlockRenderer key={obj.id} center={(obj as BlockObject).center} size={(obj as BlockObject).size} mass={(obj as BlockObject).massLabel} rotation={(obj as BlockObject).rotation} fontSize={(obj as BlockObject).fontSize} fontFamily={fontFamily} bold={(obj as BlockObject).bold} italic={(obj as BlockObject).italic} />;
+                      case 'line':
                       case 'line':
                         return <SimpleLine key={obj.id} start={(obj as LineObject).start} end={(obj as LineObject).end} color={(obj as LineObject).color} width={(obj as LineObject).width} dashed={(obj as LineObject).dashed} />;
                       case 'catenary':
@@ -799,13 +881,13 @@ function App() {
                       case 'pulley':
                         return <PulleyRenderer key={obj.id} center={(obj as PulleyObject).center} radius={(obj as PulleyObject).radius} hasHanger={(obj as PulleyObject).hasHanger} hangerLength={(obj as PulleyObject).hangerLength} hangerAngle={(obj as PulleyObject).hangerAngle} />;
                       case 'vector':
-                        return <VectorRenderer key={obj.id} anchor={(obj as VectorObject).anchor} vector={new Vector2((obj as VectorObject).tip.x - (obj as VectorObject).anchor.x, (obj as VectorObject).tip.y - (obj as VectorObject).anchor.y)} label={(obj as VectorObject).label} showComponents={(obj as VectorObject).showComponents} flipLabel={(obj as VectorObject).flipLabel} fontSize={(obj as VectorObject).fontSize} color={(obj as VectorObject).color} />;
+                        return <VectorRenderer key={obj.id} anchor={(obj as VectorObject).anchor} vector={new Vector2((obj as VectorObject).tip.x - (obj as VectorObject).anchor.x, (obj as VectorObject).tip.y - (obj as VectorObject).anchor.y)} label={(obj as VectorObject).label} showComponents={(obj as VectorObject).showComponents} flipLabel={(obj as VectorObject).flipLabel} fontSize={(obj as VectorObject).fontSize} color={(obj as VectorObject).color} fontFamily={fontFamily} bold={(obj as VectorObject).bold} italic={(obj as VectorObject).italic} />;
                       case 'triangle':
                         return <TriangleRenderer key={obj.id} p1={(obj as TriangleObject).p1} p2={(obj as TriangleObject).p2} p3={(obj as TriangleObject).p3} />;
                       case 'circle':
                         return <CircleRenderer key={obj.id} center={(obj as CircleObject).center} radius={(obj as CircleObject).radius} />;
                       case 'text':
-                        return <TextRenderer key={obj.id} center={(obj as TextObject).center} content={(obj as TextObject).content} fontSize={(obj as TextObject).fontSize} />;
+                        return <TextRenderer key={obj.id} center={(obj as TextObject).center} content={(obj as TextObject).content} fontSize={(obj as TextObject).fontSize} fontFamily={fontFamily} bold={(obj as TextObject).bold} italic={(obj as TextObject).italic} />;
                       default: return null;
                     }
                   })}
@@ -822,11 +904,11 @@ function App() {
                     <circle
                       key={i}
                       cx={h.position.x} cy={h.position.y}
-                      r={isDragging ? 8 : (isSelectedObj ? 6 : 5)}
+                      r={isDragging ? 6 : (isSelectedObj ? 4 : 3.5)}
                       // Dragging: Slightly more opaque red, but not solid. Idle: Very transparent
-                      fill={isDragging ? 'rgba(255, 0, 0, 0.5)' : (isSelectedObj ? 'rgba(255, 68, 68, 0.6)' : 'rgba(255, 0, 0, 0.1)')}
+                      fill={isDragging ? 'rgba(255, 0, 0, 0.4)' : (isSelectedObj ? 'rgba(59, 130, 246, 0.6)' : 'rgba(255, 0, 0, 0.05)')}
                       stroke={isDragging || isSelectedObj ? 'white' : 'none'}
-                      strokeWidth={2}
+                      strokeWidth={1.5}
                       className="no-export"
                     />
                   );
@@ -837,9 +919,9 @@ function App() {
                   <circle
                     cx={snapInfo.position.x}
                     cy={snapInfo.position.y}
-                    r={6}
-                    fill="rgba(255, 0, 0, 0.1)" // Even more transparent
-                    stroke="rgba(255, 0, 0, 0.4)"
+                    r={4}
+                    fill="rgba(59, 130, 246, 0.2)" // Blue tint for snap
+                    stroke="rgba(59, 130, 246, 0.6)"
                     strokeWidth={1}
                     className="no-export"
                   />

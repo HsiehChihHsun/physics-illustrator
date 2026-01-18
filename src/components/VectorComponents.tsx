@@ -9,6 +9,9 @@ interface VectorRendererProps {
     color?: string; // Default 'black'
     flipLabel?: boolean;
     fontSize?: number;
+    fontFamily?: 'Inter' | 'STIX Two Text';
+    bold?: boolean;
+    italic?: boolean;
 }
 
 export const VectorRenderer: React.FC<VectorRendererProps> = ({
@@ -18,7 +21,10 @@ export const VectorRenderer: React.FC<VectorRendererProps> = ({
     showComponents = false,
     color = 'black',
     flipLabel = false,
-    fontSize = 20
+    fontSize = 20,
+    fontFamily = 'Inter',
+    bold = false,
+    italic = false
 }) => {
     const tip = vector.add(new Vector2(anchor.x, anchor.y));
     const len = vector.length();
@@ -82,8 +88,13 @@ export const VectorRenderer: React.FC<VectorRendererProps> = ({
                     textAnchor="middle"
                     dominantBaseline="middle"
                     fill={color}
-                    className="select-none pointer-events-none font-sans font-bold"
-                    style={{ fontSize: fontSize }}
+                    className="select-none pointer-events-none"
+                    style={{
+                        fontSize: fontSize,
+                        fontFamily: fontFamily === 'Inter' ? 'Inter, sans-serif' : '"STIX Two Text", serif',
+                        fontWeight: bold ? 'bold' : 'normal',
+                        fontStyle: italic ? 'italic' : 'normal'
+                    }}
                 >
                     {label}
                 </text>

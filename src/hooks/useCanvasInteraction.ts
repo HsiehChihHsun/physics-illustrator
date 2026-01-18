@@ -76,7 +76,7 @@ export function useCanvasInteraction(
             setCursor(snap.position);
             setSnapInfo(snap);
         }
-    }, [dragIndex, interestingPoints, onPointMove, gridSize]);
+    }, [dragIndex, interestingPoints, onPointMove, gridSize, scale]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         // Check if we are close to a point to grab it
@@ -99,7 +99,7 @@ export function useCanvasInteraction(
             setDragIndex(bestIdx);
             e.preventDefault();
         }
-    }, [interestingPoints, onDragStart]);
+    }, [interestingPoints, onDragStart, scale]);
 
     const handleMouseUp = useCallback(() => {
         setDragIndex(null);

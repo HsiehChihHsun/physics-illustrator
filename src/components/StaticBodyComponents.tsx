@@ -75,6 +75,9 @@ export interface BlockProps {
     rotation?: number; // radians
     mass?: number | string;
     fontSize?: number;
+    fontFamily?: 'Inter' | 'STIX Two Text';
+    bold?: boolean;
+    italic?: boolean;
 }
 
 export const BlockRenderer: React.FC<BlockProps> = ({
@@ -82,7 +85,10 @@ export const BlockRenderer: React.FC<BlockProps> = ({
     size,
     rotation = 0,
     mass = "M",
-    fontSize = 20
+    fontSize = 20,
+    fontFamily = 'Inter',
+    bold = false,
+    italic = false
 }) => {
     // Transform for rotation around center
     const transform = `rotate(${(rotation * 180) / Math.PI}, ${center.x}, ${center.y})`;
@@ -113,9 +119,12 @@ export const BlockRenderer: React.FC<BlockProps> = ({
                     y={center.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fontFamily="sans-serif"
-                    fontWeight="bold"
-                    style={{ fontSize: fontSize }}
+                    style={{
+                        fontSize: fontSize,
+                        fontFamily: fontFamily === 'Inter' ? 'Inter, sans-serif' : '"STIX Two Text", serif',
+                        fontWeight: bold ? 'bold' : 'normal',
+                        fontStyle: italic ? 'italic' : 'normal'
+                    }}
                     fill="#333"
                     className="select-none pointer-events-none"
                 >

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Vector2, Point } from '../geometry/Vector2';
+import katex from 'katex';
 
 // --- Simple Line ---
 
@@ -104,19 +105,75 @@ export interface TextProps {
     center: Point;
     content: string;
     fontSize?: number;
+    fontFamily?: 'Inter' | 'STIX Two Text';
+    bold?: boolean;
+    italic?: boolean;
 }
-export const TextRenderer: React.FC<TextProps> = ({ center, content, fontSize = 20 }) => (
-    <text
-        x={center.x}
-        y={center.y}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontFamily="sans-serif"
-        style={{ fontSize: fontSize }}
-        fill="#333"
-        className="select-none cursor-move font-medium"
-    >
-        {content}
-    </text>
-);
+export const TextRenderer: React.FC<TextProps> = ({
+    center,
+    content,
+    fontSize = 20,
+    fontFamily = 'Inter',
+    bold = false,
+    italic = false
+}) => {
+    // Check for LaTeX format: $$content$$
+    const isLatex = content.startsWith('$$') && content.endsWith('$$');
 
+    if (isLatex) {
+        try {
+            const latexContent = content.slice(2, -2);
+            const html = katex.renderToString(latexContent, {
+                throwOnError: false,
+                displayMode: false
+            });
+
+            // Width/Height estimation is tricky. For now, we use a fixed size foreignObject
+            // centered at the point.
+            // Improve: Use a reasonable size based on font size.
+            const w = 200;
+            const h = 100;
+
+            return (
+                <foreignObject x={center.x - w / 2} y={center.y - h / 2} width={w} height={h} className="select-none pointer-events-none overflow-visible">
+                    <div
+                        style={{
+                            fontSize: fontSize,
+                            fontFamily: fontFamily === 'Inter' ? 'Inter, sans-serif' : '"STIX Two Text", serif', // LaTeX has its own font, but we can pass it if katex supports or wrapper
+                            // Actually KaTeX enforces its own fonts. We might not apply 'fontFamily' here.
+                            textAlign: 'center',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '100%',
+                            color: '#333'
+                        }}
+                        dangerouslySetInnerHTML={{ __html: html }}
+                    />
+                </foreignObject>
+            );
+        } catch (e) {
+            console.error("KaTeX error", e);
+            // Fallback to normal text
+        }
+    }
+
+    return (
+        <text
+            x={center.x}
+            y={center.y}
+            textAnchor="middle" // This centers the text horizontally
+            dominantBaseline="middle" // This centers the text vertically
+            style={{
+                fontSize: fontSize,
+                fontFamily: fontFamily === 'Inter' ? 'Inter, sans-serif' : '"STIX Two Text", serif',
+                fontWeight: bold ? 'bold' : 'normal',
+                fontStyle: italic ? 'italic' : 'normal'
+            }}
+            fill="#333"
+            className="select-none cursor-move"
+        >
+            {content}
+        </text>
+    );
+};

@@ -19,6 +19,9 @@ interface SpringRendererProps {
     fontSize?: number;
     spiralStart?: number;
     spiralEnd?: number;
+    fontFamily?: 'Inter' | 'STIX Two Text';
+    bold?: boolean;
+    italic?: boolean;
 }
 
 export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
@@ -32,7 +35,10 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
         strokeWidth = 2,
         label,
         flipLabel = false,
-        fontSize = 20
+        fontSize = 20,
+        fontFamily = 'Inter',
+        bold = false,
+        italic = false
     } = props;
     const { d, labelPos } = useMemo(() => {
         const startVec = new Vector2(start.x, start.y);
@@ -147,8 +153,13 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
                     y={labelPos.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="select-none pointer-events-none font-sans fill-gray-700 font-bold"
-                    style={{ fontSize: fontSize }}
+                    className="select-none pointer-events-none fill-gray-700"
+                    style={{
+                        fontSize: fontSize,
+                        fontFamily: fontFamily === 'Inter' ? 'Inter, sans-serif' : '"STIX Two Text", serif',
+                        fontWeight: bold ? 'bold' : 'normal',
+                        fontStyle: italic ? 'italic' : 'normal'
+                    }}
                 >
                     {label}
                 </text>

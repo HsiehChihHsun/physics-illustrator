@@ -20,6 +20,8 @@ export interface SpringObject extends BaseObject {
     fontSize?: number;
     spiralStart?: number; // degrees
     spiralEnd?: number; // degrees
+    bold?: boolean;
+    italic?: boolean;
 }
 
 export interface WallObject extends BaseObject {
@@ -36,6 +38,8 @@ export interface BlockObject extends BaseObject {
     massLabel: string;
     rotation: number;
     fontSize?: number;
+    bold?: boolean;
+    italic?: boolean;
 }
 
 export interface LineObject extends BaseObject {
@@ -74,6 +78,8 @@ export interface VectorObject extends BaseObject {
     flipLabel?: boolean; // New prop for label placement
     fontSize?: number;
     color?: string;
+    bold?: boolean;
+    italic?: boolean;
 }
 
 
@@ -96,6 +102,8 @@ export interface TextObject extends BaseObject {
     center: Point;
     content: string;
     fontSize: number;
+    bold?: boolean;
+    italic?: boolean;
 }
 
 export type PhysicsObject =
