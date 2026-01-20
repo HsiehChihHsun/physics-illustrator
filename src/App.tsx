@@ -17,6 +17,8 @@ import type {
   LineObject, CatenaryObject, PulleyObject, VectorObject,
   TriangleObject, CircleObject, TextObject, ObjectType
 } from './types/PhysicsObjects';
+import { updateObjectFromHandle, getHandlesForObject } from './logic/PhysicsEngine';
+import type { HandleDef } from './types/Interactions';
 
 const UNIT_PX = 6.25; // 1 Unit = 6.25px (1/8th of 50px Grid)
 
@@ -30,11 +32,7 @@ const INITIAL_SCENE: PhysicsObject[] = [
 const generateId = (prefix: string) => `${prefix}_${Date.now()}`;
 
 // Definition of a Drag Handle
-interface HandleDef {
-  objectId: string;
-  handleType: 'start' | 'end' | 'center' | 'tip' | 'ropeStart' | 'ropeEnd' | 'radius' | 'p1' | 'p2' | 'p3' | 'mid_top' | 'mid_bottom' | 'mid_left' | 'mid_right';
-  position: Point;
-}
+// Handle definition moved to types/Interactions.ts
 
 function App() {
   // Use History Hook instead of simple state
@@ -120,9 +118,9 @@ function App() {
         break;
       case 'vector':
         // Tip relative to anchor
-        newObj = { id: generateId('vec'), type: 'vector', anchor: new Vector2(center.x, center.y), tip: new Vector2(center.x + 50, center.y - 50), label: "", showComponents: false, flipLabel: false, fontSize: 20, color: 'black' };
+        newObj = { id: generateId('vec'), type: 'vector', anchor: new Vector2(center.x, center.y), tip: new Vector2(center.x + 50, center.y - 50), label: "", showComponents: false, smartSnapping: true, flipLabel: false, fontSize: 20, color: 'black' };
         break;
-      case 'triangle':
+      case 'triangle': {
         // ... (lines 85-97)
         // Base 30 units (187.5px), Height 20 units (125px)
         const halfBase = (30 * UNIT_PX) / 2;
@@ -134,6 +132,7 @@ function App() {
           p3: new Vector2(center.x + halfBase, center.y + height / 2)
         };
         break;
+      }
 
       case 'circle':
         // Radius 5 units (31.25px)
@@ -187,166 +186,20 @@ function App() {
 
   // --- 2. Generate Interactive Handles from Objects ---
   const handles = useMemo(() => {
-    const list: HandleDef[] = [];
-    objects.forEach(obj => {
-      if (obj.type === 'spring') {
-        list.push({ objectId: obj.id, handleType: 'start', position: obj.start });
-        list.push({ objectId: obj.id, handleType: 'end', position: obj.end });
-        list.push({ objectId: obj.id, handleType: 'center', position: obj.start.add(obj.end).div(2) });
-      } else if (obj.type === 'line') {
-        list.push({ objectId: obj.id, handleType: 'start', position: obj.start });
-        list.push({ objectId: obj.id, handleType: 'end', position: obj.end });
-        list.push({ objectId: obj.id, handleType: 'center', position: obj.start.add(obj.end).div(2) });
-      } else if (obj.type === 'catenary') {
-        list.push({ objectId: obj.id, handleType: 'start', position: obj.start });
-        list.push({ objectId: obj.id, handleType: 'end', position: obj.end });
-      } else if (obj.type === 'wall') {
-        list.push({ objectId: obj.id, handleType: 'start', position: obj.start });
-        list.push({ objectId: obj.id, handleType: 'end', position: obj.end });
-        list.push({ objectId: obj.id, handleType: 'center', position: obj.start.add(obj.end).div(2) });
-      } else if (obj.type === 'block') {
-        const o = obj as BlockObject;
-        list.push({ objectId: obj.id, handleType: 'center', position: obj.center });
-
-        // Add midpoint handles (rotated)
-        const halfW = o.size.x / 2;
-        const halfH = o.size.y / 2;
-        const rot = o.rotation;
-
-        // Helper to rotate point around center
-        const rotate = (p: { x: number, y: number }, c: { x: number, y: number }, a: number) => {
-          const dx = p.x - c.x;
-          const dy = p.y - c.y;
-          return new Vector2(
-            c.x + dx * Math.cos(a) - dy * Math.sin(a),
-            c.y + dx * Math.sin(a) + dy * Math.cos(a)
-          );
-        };
-
-        // Midpoints relative to center (unrotated)
-        const top = { x: o.center.x, y: o.center.y - halfH };
-        const bottom = { x: o.center.x, y: o.center.y + halfH };
-        const left = { x: o.center.x - halfW, y: o.center.y };
-        const right = { x: o.center.x + halfW, y: o.center.y };
-
-        list.push({ objectId: obj.id, handleType: 'mid_top', position: rotate(top, o.center, rot) });
-        list.push({ objectId: obj.id, handleType: 'mid_bottom', position: rotate(bottom, o.center, rot) });
-        list.push({ objectId: obj.id, handleType: 'mid_left', position: rotate(left, o.center, rot) });
-        list.push({ objectId: obj.id, handleType: 'mid_right', position: rotate(right, o.center, rot) });
-
-      } else if (obj.type === 'pulley') {
-        list.push({ objectId: obj.id, handleType: 'center', position: obj.center });
-      } else if (obj.type === 'vector') {
-        list.push({ objectId: obj.id, handleType: 'start', position: obj.anchor });
-        list.push({ objectId: obj.id, handleType: 'tip', position: obj.tip });
-      } else if (obj.type === 'triangle') {
-        list.push({ objectId: obj.id, handleType: 'p1', position: obj.p1 });
-        list.push({ objectId: obj.id, handleType: 'p2', position: obj.p2 });
-        list.push({ objectId: obj.id, handleType: 'p3', position: obj.p3 });
-      } else if (obj.type === 'circle') {
-        list.push({ objectId: obj.id, handleType: 'center', position: obj.center });
-        // Radius handle: center.x + radius
-        list.push({ objectId: obj.id, handleType: 'radius', position: new Vector2(obj.center.x + obj.radius, obj.center.y) });
-      } else if (obj.type === 'text') {
-        list.push({ objectId: obj.id, handleType: 'center', position: obj.center });
-      }
-    });
-    return list;
+    return objects.flatMap(obj => getHandlesForObject(obj)) as HandleDef[];
   }, [objects]);
 
-  // Pass just the points to the hook
-  const interestingPoints = useMemo(() => handles.map(h => h.position), [handles]);
+
 
   // --- 3. Handle Dragging ---
   const handlePointMove = useCallback((index: number, newPos: Point) => {
     const handle = handles[index];
     if (!handle) return;
 
-    const p = new Vector2(newPos.x, newPos.y);
-
     // Use updateState for live dragging (does not push to history yet)
     const newObjects = objects.map(obj => {
       if (obj.id !== handle.objectId) return obj;
-
-      // Updating the specific property based on handleType
-      // We must cast/assert types carefully or use a switch
-      switch (obj.type) {
-        case 'spring':
-        case 'line':
-        case 'catenary':
-        case 'wall':
-          // These all have start/end
-          if (handle.handleType === 'start') return { ...obj, start: p };
-          if (handle.handleType === 'end') return { ...obj, end: p };
-          if (handle.handleType === 'center') {
-            // Move both start and end by delta
-            const currentCenter = (obj as any).start.add((obj as any).end).div(2) as Vector2; // Casting to avoid complex type check, we know these have start/end
-            const delta = p.subtract(currentCenter);
-            return { ...obj, start: (obj as any).start.add(delta), end: (obj as any).end.add(delta) };
-          }
-          break;
-        case 'block':
-          if (handle.handleType === 'center') return { ...obj, center: p };
-          // Symmetric Resizing logic for rotated blocks
-          if (handle.handleType.startsWith('mid_')) {
-            const o = obj as BlockObject;
-            // We need distance from center projected onto the local axis
-            // But handle is snapped to grid, so p is absolute.
-            const dVec = p.subtract(o.center);
-
-            // Rotate dVec by -rotation to get local coords
-            const cos = Math.cos(-o.rotation);
-            const sin = Math.sin(-o.rotation);
-            const localDx = dVec.x * cos - dVec.y * sin;
-            const localDy = dVec.x * sin + dVec.y * cos;
-
-            const newSize = { ...o.size };
-
-            // Depending on handle, we adjust width or height
-            // We assume handles keep their relative identity (top, bottom etc)
-            // Actually, since we only push handles, we don't know which one this is unless we check handleType
-
-            if (handle.handleType === 'mid_left' || handle.handleType === 'mid_right') {
-              // Width
-              newSize.x = Math.abs(localDx) * 2;
-              // Clamp min size
-              if (newSize.x < 2 * UNIT_PX) newSize.x = 2 * UNIT_PX;
-            } else {
-              // Height
-              newSize.y = Math.abs(localDy) * 2;
-              if (newSize.y < 2 * UNIT_PX) newSize.y = 2 * UNIT_PX;
-            }
-            return { ...obj, size: new Vector2(newSize.x, newSize.y) };
-          }
-          break;
-        case 'pulley':
-          if (handle.handleType === 'center') return { ...obj, center: p };
-          if (handle.handleType === 'ropeStart') return { ...obj, ropeStart: p };
-          if (handle.handleType === 'ropeEnd') return { ...obj, ropeEnd: p };
-          break;
-        case 'vector':
-          if (handle.handleType === 'start') return { ...obj, anchor: p };
-          if (handle.handleType === 'tip') return { ...obj, tip: p };
-          break;
-        case 'triangle':
-          if (handle.handleType === 'p1') return { ...obj, p1: p };
-          if (handle.handleType === 'p2') return { ...obj, p2: p };
-          if (handle.handleType === 'p3') return { ...obj, p3: p };
-          break;
-        case 'circle':
-          if (handle.handleType === 'center') return { ...obj, center: p };
-          if (handle.handleType === 'radius') {
-            // Calculate new radius
-            let r = p.distanceTo(obj.center);
-            if (r < 1) r = 1;
-            return { ...obj, radius: r };
-          }
-          break;
-        case 'text':
-          if (handle.handleType === 'center') return { ...obj, center: p };
-          break;
-      }
-      return obj;
+      return updateObjectFromHandle(obj, handle.handleType, newPos);
     });
 
     updateState(newObjects);
@@ -371,20 +224,21 @@ function App() {
     handleMouseUp
   } = useCanvasInteraction(
     canvasRef,
-    interestingPoints,
+    handles,
+    objects,
     handlePointMove,
     handleDragStart,
-    gridSize, // Pass dynamic grid size, correctly defined now
-    interactionScale // Pass total scale (Physical * Zoom)
+    gridSize,
+    interactionScale
   );
 
   // --- 4. Auto-Select Logic ---
   useEffect(() => {
     if (dragIndex !== null) {
       const handle = handles[dragIndex];
-      if (handle) setSelectedId(handle.objectId);
+      if (handle && selectedId !== handle.objectId) setSelectedId(handle.objectId);
     }
-  }, [dragIndex, handles]);
+  }, [dragIndex, handles, selectedId]);
 
   // --- 5. Properties Logic ---
   // --- 5. Properties Logic ---
@@ -479,7 +333,8 @@ function App() {
             { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
             { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
             { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
-            { label: 'Components', type: 'boolean', value: o.showComponents, onChange: (v) => handlePropertyChange('showComponents', v) }
+            { label: 'Components', type: 'boolean', value: o.showComponents, onChange: (v) => handlePropertyChange('showComponents', v) },
+            { label: 'Smart Snapping', type: 'boolean', value: o.smartSnapping !== false, onChange: (v) => handlePropertyChange('smartSnapping', v) }
           ]
         };
       }
@@ -594,32 +449,37 @@ function App() {
             const width = (obj as any).width || 20;
             minX -= width / 2; maxX += width / 2; minY -= width / 2; maxY += width / 2;
             break;
-          case 'block':
+          case 'block': {
             const b = obj as BlockObject;
             checkRect(b.center, b.size.x, b.size.y);
             break;
+          }
           case 'circle':
-          case 'pulley':
+          case 'pulley': {
             const c = obj as any;
             checkCircle(c.center, c.radius);
             break;
-          case 'vector':
+          }
+          case 'vector': {
             const v = obj as VectorObject;
             checkPoint(v.anchor);
             checkPoint(v.tip);
             // Label approximate margin
             minX -= 20; maxX += 20; minY -= 20; maxY += 20;
             break;
-          case 'text':
+          }
+          case 'text': {
             const t = obj as TextObject;
             // Text size approximation
             checkRect(t.center, (t.content.length * (t.fontSize || 20) * 0.6), (t.fontSize || 20));
             break;
-          case 'triangle':
+          }
+          case 'triangle': {
             const tri = obj as TriangleObject;
             checkPoint(tri.p1); checkPoint(tri.p2); checkPoint(tri.p3);
             break;
-          case 'catenary':
+          }
+          case 'catenary': {
             const cat = obj as CatenaryObject;
             checkPoint(cat.start); checkPoint(cat.end);
             // Slack approximation - assume lowest point can drop by slack amount
@@ -627,6 +487,7 @@ function App() {
             if (cat.end.y > maxY) maxY = cat.end.y;
             maxY += cat.slack;
             break;
+          }
         }
       });
     }

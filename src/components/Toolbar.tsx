@@ -21,10 +21,22 @@ export interface ToolbarProps {
     zoom: number;
     onZoomChange: (zoom: number) => void;
 
-    // Phase 13: Font Selection
     fontFamily: 'Inter' | 'STIX Two Text';
     onFontChange: (font: 'Inter' | 'STIX Two Text') => void;
 }
+
+const ToolButton: React.FC<{ label: string; icon: string; onClick: () => void; isActive?: boolean; color?: string }> = ({ label, icon, onClick, isActive, color }) => (
+    <button
+        onClick={onClick}
+        className={`flex items-center justify-center w-9 h-9 rounded transition-all ${isActive ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-black/5'} ${color ? 'text-' + color + '-600' : ''}`}
+        title={label}
+    >
+        <span className="text-lg leading-none">{icon}</span>
+    </button>
+);
+
+const Separator = () => <div className="w-px h-6 bg-gray-300 mx-1 self-center" />;
+
 
 export const Toolbar: React.FC<ToolbarProps> = ({
     onDelete, canDelete, onSave, onLoad, onExport,
@@ -40,17 +52,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         }
     };
 
-    const ToolButton: React.FC<{ label: string; icon: string; onClick: () => void; isActive?: boolean; color?: string }> = ({ label, icon, onClick, isActive, color }) => (
-        <button
-            onClick={onClick}
-            className={`flex items-center justify-center w-9 h-9 rounded transition-all ${isActive ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-black/5'} ${color ? 'text-' + color + '-600' : ''}`}
-            title={label}
-        >
-            <span className="text-lg leading-none">{icon}</span>
-        </button>
-    );
-
-    const Separator = () => <div className="w-px h-6 bg-gray-300 mx-1 self-center" />;
 
     return (
         <div className="flex flex-row items-center p-2 bg-[#f5f5f5] border-b border-[#e0e0e0] w-full gap-1 overflow-x-auto shadow-sm z-20 relative">

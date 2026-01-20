@@ -7,16 +7,19 @@
 import { useState, useCallback } from 'react';
 import type { RefObject } from 'react';
 import { Vector2, Point } from '../geometry/Vector2';
-import { SnappingSystem } from '../geometry/SnappingSystem';
-import type { SnapResult } from '../geometry/SnappingSystem';
+import { getSnapCandidate } from '../logic/SnappingSystem';
+import type { SnapResult } from '../logic/SnappingSystem';
+import type { PhysicsObject } from '../types/PhysicsObjects';
+import type { HandleDef } from '../types/Interactions';
 
 export function useCanvasInteraction(
     canvasRef: RefObject<HTMLDivElement | null>,
-    interestingPoints: Point[] = [],
+    handles: HandleDef[] = [],
+    scene: PhysicsObject[] = [],
     onPointMove?: (index: number, newPos: Point) => void,
     onDragStart?: () => void,
     gridSize: number = 50,
-    scale: number = 1 // New Argument for scale factor
+    scale: number = 1
 ) {
     const [cursor, setCursor] = useState<Point>(new Vector2(0, 0));
     const [snapInfo, setSnapInfo] = useState<SnapResult | null>(null);
@@ -25,68 +28,104 @@ export function useCanvasInteraction(
     const [dragIndex, setDragIndex] = useState<number | null>(null);
 
     // Helper to get relative coordinates from the canvas element (via ref)
-    const getMousePos = (e: React.MouseEvent) => {
+    const getMousePos = useCallback((e: React.MouseEvent) => {
         if (!canvasRef.current) return new Vector2(0, 0);
         const rect = canvasRef.current.getBoundingClientRect();
         return new Vector2(
             (e.clientX - rect.left) / scale,
             (e.clientY - rect.top) / scale
         );
-    };
+    }, [canvasRef, scale]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
-        const rawPoint = getMousePos(e);
+        const rawPoint = getMousePos(e); // Vector2
 
         // 1. If Dragging, we enforce the move
         if (dragIndex !== null && onPointMove) {
-            // When dragging, we still want to snap the DESTINATION
-            // But we exclude the point itself from "self-snapping" usually
-            // For simplicity, we snap against ALL points (including self, which is fine, distance=0)
-            // or we could filter it out.
-
-            // Let's filter out the point we are dragging from the snap targets to avoid jitter
-            // although 'interestingPoints' comes from props, so we just pass it all for now.
-            const currentPointsWithoutSelf = interestingPoints.filter((_, i) => i !== dragIndex);
-
-            // Check for "Disable Snapping" modifier (Ctrl or Cmd)
+            const currentHandle = handles[dragIndex];
             const isSnappingDisabled = e.ctrlKey || e.metaKey;
 
-            const snap = SnappingSystem.snap(
+            if (!currentHandle || isSnappingDisabled) {
+                // No snapping
+                onPointMove(dragIndex, rawPoint);
+                setCursor(rawPoint);
+                setSnapInfo(null);
+                return;
+            }
+
+            // Prepare Context
+            // If dragging Tip, we need Anchor.
+            let context: { anchor?: Vector2 } | undefined;
+            if (currentHandle.handleType === 'tip') {
+                // Find potential anchor from same object
+                // We can search handles or the object itself.
+                // Searching handles is generic.
+                const anchorHandle = handles.find(h => h.objectId === currentHandle.objectId && h.handleType === 'start');
+                if (anchorHandle) {
+                    context = { anchor: new Vector2(anchorHandle.position.x, anchorHandle.position.y) };
+                }
+            }
+
+            // Determine Smart Snapping Preference
+            // Default to true if undefined, unless we want to force explicit opt-in.
+            // Let's check the objects involved.
+            let useSmartSnapping = true;
+            const obj = scene.find(o => o.id === currentHandle.objectId);
+            if (obj && obj.type === 'vector' && (obj as import('../types/PhysicsObjects').VectorObject).smartSnapping === false) {
+                useSmartSnapping = false;
+            }
+
+            // Call Logic
+            const snap = getSnapCandidate(
+                scene,
                 rawPoint,
-                currentPointsWithoutSelf,
-                { ...SnappingSystem.defaultConfig, enabled: !isSnappingDisabled, gridSize }
+                currentHandle.objectId,
+                20, // Threshold
+                context,
+                useSmartSnapping
             );
 
-            // Notify Parent
-            onPointMove(dragIndex, snap.position);
+            // If Logic returns 'none', maybe fallback to Grid?
+            // The Logic `getSnapCandidate` currently returns 'none' if no object snap.
+            // We should add Grid Snap fallback here or inside logic.
+            // Let's add Grid Fallback here for simplicity.
 
-            setCursor(snap.position);
-            setSnapInfo(snap);
+            let finalPos = snap.position;
+            let finalSnapInfo = snap;
+
+            if (snap.snappedTo === 'none') {
+                // Grid Snap
+                const gx = Math.round(rawPoint.x / gridSize) * gridSize;
+                const gy = Math.round(rawPoint.y / gridSize) * gridSize;
+                const gridPos = new Vector2(gx, gy);
+                if (rawPoint.distanceTo(gridPos) < 20) {
+                    finalPos = gridPos;
+                    finalSnapInfo = { position: gridPos, snappedTo: 'grid' };
+                }
+            }
+
+            // Notify Parent
+            onPointMove(dragIndex, finalPos);
+
+            setCursor(finalPos);
+            setSnapInfo(finalSnapInfo);
         }
         // 2. Just Hovering
         else {
-            // Check for "Disable Snapping" modifier
-            const isSnappingDisabled = e.ctrlKey || e.metaKey;
-
-            const snap = SnappingSystem.snap(
-                rawPoint,
-                interestingPoints,
-                { ...SnappingSystem.defaultConfig, enabled: !isSnappingDisabled, gridSize }
-            );
-            setCursor(snap.position);
-            setSnapInfo(snap);
+            setCursor(rawPoint);
         }
-    }, [dragIndex, interestingPoints, onPointMove, gridSize, scale]);
+    }, [dragIndex, handles, scene, onPointMove, gridSize, scale, getMousePos]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         // Check if we are close to a point to grab it
         const clickPoint = getMousePos(e);
 
-        // Check points for hit testing (radius 10px)
+        // Check points for hit testing (radius 15px interaction / visual is smaller)
         let bestIdx = -1;
-        let bestDist = 15; // Hit radius
+        let bestDist = 15 / scale; // Adjust hit radius by scale? No, hit test usually in screen px or consistent units.
 
-        interestingPoints.forEach((p, i) => {
+        handles.forEach((h, i) => {
+            const p = new Vector2(h.position.x, h.position.y);
             const d = p.distanceTo(clickPoint);
             if (d < bestDist) {
                 bestDist = d;
@@ -99,10 +138,11 @@ export function useCanvasInteraction(
             setDragIndex(bestIdx);
             e.preventDefault();
         }
-    }, [interestingPoints, onDragStart, scale]);
+    }, [handles, onDragStart, scale, getMousePos]);
 
     const handleMouseUp = useCallback(() => {
         setDragIndex(null);
+        setSnapInfo(null);
     }, []);
 
     return {
@@ -114,4 +154,3 @@ export function useCanvasInteraction(
         handleMouseUp
     };
 }
-

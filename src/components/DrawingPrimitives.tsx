@@ -121,13 +121,19 @@ export const TextRenderer: React.FC<TextProps> = ({
     const isLatex = content.startsWith('$$') && content.endsWith('$$');
 
     if (isLatex) {
+        let html = '';
         try {
             const latexContent = content.slice(2, -2);
-            const html = katex.renderToString(latexContent, {
+            html = katex.renderToString(latexContent, {
                 throwOnError: false,
                 displayMode: false
             });
+        } catch (e) {
+            console.error("KaTeX error", e);
+            // Fallback will happen if html is empty
+        }
 
+        if (html) {
             // Width/Height estimation is tricky. For now, we use a fixed size foreignObject
             // centered at the point.
             // Improve: Use a reasonable size based on font size.
@@ -152,9 +158,6 @@ export const TextRenderer: React.FC<TextProps> = ({
                     />
                 </foreignObject>
             );
-        } catch (e) {
-            console.error("KaTeX error", e);
-            // Fallback to normal text
         }
     }
 

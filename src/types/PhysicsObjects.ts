@@ -75,6 +75,7 @@ export interface VectorObject extends BaseObject {
     tip: Point;
     label: string;
     showComponents: boolean;
+    smartSnapping?: boolean; // New Feature Toggle
     flipLabel?: boolean; // New prop for label placement
     fontSize?: number;
     color?: string;
