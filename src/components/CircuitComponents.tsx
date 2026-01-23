@@ -51,7 +51,7 @@ export const DCSourceRenderer: React.FC<DCSourceProps> = ({
     const startDepth = -totalDepth / 2;
 
     const mid = startVec.add(endVec).div(2);
-    let elements: JSX.Element[] = [];
+    let elements: React.JSX.Element[] = [];
 
     // Terminals
     const batteryStartPos = mid.add(dir.multiply(startDepth));

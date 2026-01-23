@@ -991,7 +991,6 @@ function App() {
                       case 'block':
                         return <BlockRenderer key={obj.id} center={(obj as BlockObject).center} size={(obj as BlockObject).size} mass={(obj as BlockObject).massLabel} rotation={(obj as BlockObject).rotation} fontSize={(obj as BlockObject).fontSize} fontFamily={fontFamily} bold={(obj as BlockObject).bold} italic={(obj as BlockObject).italic} />;
                       case 'line':
-                      case 'line':
                         return <SimpleLine key={obj.id} start={(obj as LineObject).start} end={(obj as LineObject).end} color={(obj as LineObject).color} width={(obj as LineObject).width} dashed={(obj as LineObject).dashed} />;
                       case 'catenary':
                         return <CatenaryRenderer key={obj.id} start={(obj as CatenaryObject).start} end={(obj as CatenaryObject).end} slack={(obj as CatenaryObject).slack} color={(obj as CatenaryObject).color} />;
