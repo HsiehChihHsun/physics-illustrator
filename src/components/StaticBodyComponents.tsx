@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Vector2, Point } from '../geometry/Vector2';
+import { MathLabel } from './MathLabel';
 
 // --- Wall / Ground ---
 
@@ -114,22 +115,15 @@ export const BlockRenderer: React.FC<BlockProps> = ({
 
             {/* Mass Label (Counter-rotated container) */}
             <g transform={textTransform}>
-                <text
-                    x={center.x}
-                    y={center.y}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    style={{
-                        fontSize: fontSize,
-                        fontFamily: fontFamily === 'Inter' ? 'Inter, sans-serif' : '"STIX Two Text", serif',
-                        fontWeight: bold ? 'bold' : 'normal',
-                        fontStyle: italic ? 'italic' : 'normal'
-                    }}
-                    fill="#333"
-                    className="select-none pointer-events-none"
-                >
-                    {mass}
-                </text>
+                <MathLabel
+                    center={center}
+                    content={mass.toString()}
+                    fontSize={fontSize}
+                    fontFamily={fontFamily}
+                    bold={bold}
+                    italic={italic}
+                    color="#333"
+                />
             </g>
         </g>
     );

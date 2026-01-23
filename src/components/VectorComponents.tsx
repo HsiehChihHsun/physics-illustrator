@@ -1,5 +1,6 @@
 import React from 'react';
 import { Vector2 } from '../geometry/Vector2';
+import { MathLabel } from './MathLabel';
 
 interface VectorRendererProps {
     anchor: { x: number, y: number };
@@ -82,22 +83,15 @@ export const VectorRenderer: React.FC<VectorRendererProps> = ({
 
             {/* Label */}
             {label && (
-                <text
-                    x={labelPos.x}
-                    y={labelPos.y}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill={color}
-                    className="select-none pointer-events-none"
-                    style={{
-                        fontSize: fontSize,
-                        fontFamily: fontFamily === 'Inter' ? 'Inter, sans-serif' : '"STIX Two Text", serif',
-                        fontWeight: bold ? 'bold' : 'normal',
-                        fontStyle: italic ? 'italic' : 'normal'
-                    }}
-                >
-                    {label}
-                </text>
+                <MathLabel
+                    center={labelPos}
+                    content={label}
+                    color={color}
+                    fontSize={fontSize}
+                    fontFamily={fontFamily}
+                    bold={bold}
+                    italic={italic}
+                />
             )}
         </g>
     );

@@ -27,7 +27,14 @@ export const updateObjectFromHandle = (
         case 'spring':
         case 'line':
         case 'catenary':
-        case 'wall': {
+        case 'wall':
+        case 'wire':
+        case 'dcsource':
+        case 'resistor':
+        case 'inductor':
+        case 'capacitor':
+        case 'diode':
+        case 'switch': {
             // These all have start/end
             const o = obj as any; // Safe cast as we check props
             if (handleType === 'start') return { ...o, start: p };
@@ -91,8 +98,9 @@ export const updateObjectFromHandle = (
             if (handleType === 'p3') return { ...o, p3: p };
             break;
         }
-        case 'circle': {
-            const o = obj as CircleObject;
+        case 'circle':
+        case 'acsource': {
+            const o = obj as any;
             if (handleType === 'center') return { ...o, center: p };
             if (handleType === 'radius') {
                 let r = p.distanceTo(o.center);
@@ -173,6 +181,26 @@ export const getHandlesForObject = (obj: PhysicsObject): { objectId: string, han
     } else if (obj.type === 'text') {
         const o = obj as TextObject;
         list.push({ objectId: o.id, handleType: 'center', position: o.center });
+    } else if (obj.type === 'wire') {
+        const o = obj as any; // WireObject has start/end
+        list.push({ objectId: o.id, handleType: 'start', position: o.start });
+        list.push({ objectId: o.id, handleType: 'end', position: o.end });
+        list.push({ objectId: o.id, handleType: 'center', position: o.start.add(o.end).div(2) });
+    } else if (['dcsource', 'resistor', 'inductor', 'capacitor', 'diode', 'switch'].includes(obj.type)) {
+        // Linear components with start/end
+        const o = obj as any;
+        list.push({ objectId: o.id, handleType: 'start', position: o.start });
+        list.push({ objectId: o.id, handleType: 'end', position: o.end });
+        list.push({ objectId: o.id, handleType: 'center', position: o.start.add(o.end).div(2) });
+    } else if (obj.type === 'acsource') {
+        const o = obj as any; // ACSourceObject
+        list.push({ objectId: o.id, handleType: 'center', position: o.center });
+        // Anchors (Top, Bottom, Left, Right) based on radius
+        // Note: These handles are for snapping. If not handled in updateObjectFromHandle, they won't resize/move the object, which matches "control radius in properties only"
+        list.push({ objectId: o.id, handleType: 'top', position: new Vector2(o.center.x, o.center.y - o.radius) });
+        list.push({ objectId: o.id, handleType: 'bottom', position: new Vector2(o.center.x, o.center.y + o.radius) });
+        list.push({ objectId: o.id, handleType: 'left', position: new Vector2(o.center.x - o.radius, o.center.y) });
+        list.push({ objectId: o.id, handleType: 'right', position: new Vector2(o.center.x + o.radius, o.center.y) });
     }
 
     return list;
