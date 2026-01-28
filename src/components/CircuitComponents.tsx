@@ -18,6 +18,8 @@ interface DCSourceProps {
     fontFamily?: 'Inter' | 'STIX Two Text';
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export const DCSourceRenderer: React.FC<DCSourceProps> = ({

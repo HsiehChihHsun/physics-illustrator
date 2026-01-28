@@ -289,7 +289,7 @@ function App() {
       // We need the old position of the handle to calculate delta.
       // But handlePointMove gives us absolute newPos.
       // We can find the current object in `objects` to get its current pos.
-      const currentObj = objects.find(o => o.id === handle.objectId);
+      // const currentObj = objects.find(o => o.id === handle.objectId);
       // Get current handle position from object? 
       // Easier: handles[index].position is the current (old) position before this update?
       // No, handles are re-calculated from objects state. `objects` is current state.
@@ -362,7 +362,7 @@ function App() {
   // --- 4. Auto-Select & Selection Box Logic ---
   useEffect(() => {
     // 1. Handle Selection on Drag
-    if (dragIndex !== null) {
+    if (dragIndex !== null && dragIndex !== undefined) {
       const handle = handles[dragIndex];
       // If clicking an object that is NOT selected, select it (exclusive)
       // UNLESS dragging a group?
@@ -1001,7 +1001,7 @@ function App() {
                     return getOrder(a.type) - getOrder(b.type);
                   })
                   .map(obj => {
-                    const isSelected = selectedIds.includes(obj.id);
+                    // const isSelected = selectedIds.includes(obj.id);
                     // Pass isSelected to renderers if they support it, or handle here.
                     // Currently renderers don't seem to take 'selected' prop based on previous code.
                     // But we can add overlapping selection box or highlight.
