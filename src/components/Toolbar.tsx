@@ -1,8 +1,10 @@
 import React from 'react';
+import { IconSave, IconLoad, IconDelete, IconVisible, IconInvisible, IconDeselect } from './Icons';
 
 export interface ToolbarProps {
     onDelete: () => void;
     canDelete: boolean;
+    onDeselect?: () => void; // Optional for backward compatibility if needed, but we will use it
     onSave: () => void;
     onLoad: (file: File) => void;
     onExport: (format: 'png' | 'svg') => void;
@@ -25,13 +27,15 @@ export interface ToolbarProps {
     onFontChange: (font: 'Inter' | 'STIX Two Text') => void;
 }
 
-const ToolButton: React.FC<{ label: string; icon: string; onClick: () => void; isActive?: boolean; color?: string }> = ({ label, icon, onClick, isActive, color }) => (
+const ToolButton: React.FC<{ label: string; icon: React.ReactNode; onClick: () => void; isActive?: boolean; color?: string }> = ({ label, icon, onClick, isActive, color }) => (
     <button
         onClick={onClick}
         className={`flex items-center justify-center w-9 h-9 rounded transition-all ${isActive ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-black/5'} ${color ? 'text-' + color + '-600' : ''}`}
         title={label}
     >
-        <span className="text-lg leading-none">{icon}</span>
+        <div className="w-5 h-5 flex items-center justify-center text-current">
+            {icon}
+        </div>
     </button>
 );
 
@@ -39,7 +43,7 @@ const Separator = () => <div className="w-px h-6 bg-gray-300 mx-1 self-center" /
 
 
 export const Toolbar: React.FC<ToolbarProps> = ({
-    onDelete, canDelete, onSave, onLoad, onExport,
+    onDelete, canDelete, onDeselect, onSave, onLoad, onExport,
     showSnap, onToggleSnap, gridDensity, onGridDensityChange,
     canvasMode, onCanvasModeChange,
     zoom, onZoomChange,
@@ -58,9 +62,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
             {/* Project */}
             <div className="flex items-center gap-1">
-                <ToolButton label="Save Scene" icon="💾" onClick={onSave} />
+                <ToolButton label="Save Scene" icon={<IconSave />} onClick={onSave} />
                 <label className="flex items-center justify-center w-9 h-9 rounded text-gray-600 hover:bg-black/5 transition-colors cursor-pointer" title="Load Scene">
-                    <span className="text-lg">📂</span>
+                    <div className="w-5 h-5 flex items-center justify-center text-current">
+                        <IconLoad />
+                    </div>
                     <input type="file" accept=".json" className="hidden" onChange={handleFileChange} />
                 </label>
                 <div className="flex gap-0.5">
@@ -73,7 +79,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
             {/* View */}
             <div className="flex items-center gap-2">
-                <ToolButton label={showSnap ? "Snap On" : "Snap Off"} icon={showSnap ? '👁️' : '🚫'} onClick={onToggleSnap} isActive={showSnap} />
+                <ToolButton label={showSnap ? "Snap On" : "Snap Off"} icon={showSnap ? <IconVisible /> : <IconInvisible />} onClick={onToggleSnap} isActive={showSnap} />
 
                 <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1" title="Font Family">
@@ -93,12 +99,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         <select
                             value={gridDensity}
                             onChange={(e) => onGridDensityChange(Number(e.target.value))}
-                            className="text-[11px] border-none bg-transparent hover:bg-black/5 rounded cursor-pointer focus:ring-0 py-0.5 pl-1 pr-0 w-10 text-gray-700 font-mono"
+                            className="text-[11px] border-none bg-transparent hover:bg-black/5 rounded cursor-pointer focus:ring-0 py-0.5 pl-1 pr-0 w-20 text-gray-700 font-mono"
                         >
-                            <option value={1}>1x</option>
-                            <option value={2}>2x</option>
-                            <option value={4}>4x</option>
-                            <option value={8}>8x</option>
+                            <option value={4}>2 units</option>
+                            <option value={8}>1 unit</option>
                         </select>
                     </div>
 
@@ -134,13 +138,28 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
             {/* Actions */}
             <div className="flex items-center gap-1 pr-2">
+                {canDelete && onDeselect && (
+                    <button
+                        onClick={onDeselect}
+                        className="flex items-center justify-center h-9 px-4 rounded bg-pink-500 hover:bg-pink-600 text-white transition-all shadow-sm mr-2"
+                        title="Cancel Selection (Esc)"
+                    >
+                        <div className="w-5 h-5 flex items-center justify-center text-current mr-1">
+                            <IconDeselect />
+                        </div>
+                        <span className="text-xs font-bold">Cancel</span>
+                    </button>
+                )}
+
                 <button
                     onClick={onDelete}
                     disabled={!canDelete}
                     className={`flex items-center justify-center w-9 h-9 rounded transition-all ${canDelete ? 'text-red-500 hover:bg-red-50' : 'opacity-30 cursor-not-allowed text-gray-400'}`}
                     title="Delete Selected (Del)"
                 >
-                    <span className="text-xl">🗑️</span>
+                    <div className="w-5 h-5 flex items-center justify-center text-current">
+                        <IconDelete />
+                    </div>
                 </button>
             </div>
         </div>

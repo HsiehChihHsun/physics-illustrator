@@ -25,7 +25,12 @@ export function useCanvasInteraction(
     const [snapInfo, setSnapInfo] = useState<SnapResult | null>(null);
 
     // Dragging State
-    const [dragIndex, setDragIndex] = useState<number | null>(null);
+    const [dragState, setDragState] = useState<{
+        type: 'handle' | 'box',
+        index?: number, // for handle
+        start?: Point,  // for box
+        end?: Point     // for box
+    } | null>(null);
 
     // Helper to get relative coordinates from the canvas element (via ref)
     const getMousePos = useCallback((e: React.MouseEvent) => {
@@ -40,8 +45,9 @@ export function useCanvasInteraction(
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
         const rawPoint = getMousePos(e); // Vector2
 
-        // 1. If Dragging, we enforce the move
-        if (dragIndex !== null && onPointMove) {
+        // 1. If Dragging Handle
+        if (dragState?.type === 'handle' && dragState.index !== undefined && onPointMove) {
+            const dragIndex = dragState.index;
             const currentHandle = handles[dragIndex];
             const isSnappingDisabled = e.ctrlKey || e.metaKey;
 
@@ -54,21 +60,14 @@ export function useCanvasInteraction(
             }
 
             // Prepare Context
-            // If dragging Tip, we need Anchor.
             let context: { anchor?: Vector2 } | undefined;
             if (currentHandle.handleType === 'tip') {
-                // Find potential anchor from same object
-                // We can search handles or the object itself.
-                // Searching handles is generic.
                 const anchorHandle = handles.find(h => h.objectId === currentHandle.objectId && h.handleType === 'start');
                 if (anchorHandle) {
                     context = { anchor: new Vector2(anchorHandle.position.x, anchorHandle.position.y) };
                 }
             }
 
-            // Determine Smart Snapping Preference
-            // Default to true if undefined, unless we want to force explicit opt-in.
-            // Let's check the objects involved.
             let useSmartSnapping = true;
             const obj = scene.find(o => o.id === currentHandle.objectId);
             if (obj && obj.type === 'vector' && (obj as import('../types/PhysicsObjects').VectorObject).smartSnapping === false) {
@@ -84,11 +83,6 @@ export function useCanvasInteraction(
                 context,
                 useSmartSnapping
             );
-
-            // If Logic returns 'none', maybe fallback to Grid?
-            // The Logic `getSnapCandidate` currently returns 'none' if no object snap.
-            // We should add Grid Snap fallback here or inside logic.
-            // Let's add Grid Fallback here for simplicity.
 
             let finalPos = snap.position;
             let finalSnapInfo = snap;
@@ -106,23 +100,27 @@ export function useCanvasInteraction(
 
             // Notify Parent
             onPointMove(dragIndex, finalPos);
-
             setCursor(finalPos);
             setSnapInfo(finalSnapInfo);
         }
-        // 2. Just Hovering
+        // 2. If Box Selecting
+        else if (dragState?.type === 'box') {
+            setDragState(prev => prev ? { ...prev, end: rawPoint } : null);
+            setCursor(rawPoint);
+        }
+        // 3. Just Hovering
         else {
             setCursor(rawPoint);
         }
-    }, [dragIndex, handles, scene, onPointMove, gridSize, scale, getMousePos]);
+    }, [dragState, handles, scene, onPointMove, gridSize, scale, getMousePos]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         // Check if we are close to a point to grab it
         const clickPoint = getMousePos(e);
 
-        // Check points for hit testing (radius 15px interaction / visual is smaller)
+        // Check handles
         let bestIdx = -1;
-        let bestDist = 15 / scale; // Adjust hit radius by scale? No, hit test usually in screen px or consistent units.
+        let bestDist = 15 / scale;
 
         handles.forEach((h, i) => {
             const p = new Vector2(h.position.x, h.position.y);
@@ -135,20 +133,25 @@ export function useCanvasInteraction(
 
         if (bestIdx !== -1) {
             if (onDragStart) onDragStart(); // Notify start
-            setDragIndex(bestIdx);
+            setDragState({ type: 'handle', index: bestIdx });
+            e.preventDefault();
+        } else {
+            // Start Box Selection
+            setDragState({ type: 'box', start: clickPoint, end: clickPoint });
             e.preventDefault();
         }
     }, [handles, onDragStart, scale, getMousePos]);
 
     const handleMouseUp = useCallback(() => {
-        setDragIndex(null);
+        setDragState(null);
         setSnapInfo(null);
     }, []);
 
     return {
         cursor,
         snapInfo,
-        dragIndex,
+        dragIndex: dragState?.type === 'handle' ? dragState.index : null,
+        selectionBox: dragState?.type === 'box' && dragState.start && dragState.end ? { start: dragState.start, end: dragState.end } : null,
         handleMouseMove,
         handleMouseDown,
         handleMouseUp

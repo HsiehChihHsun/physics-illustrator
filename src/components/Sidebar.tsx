@@ -1,4 +1,9 @@
 import React, { useState, useRef } from 'react';
+import {
+    IconBlock, IconWall, IconPulley, IconSpring, IconRope,
+    IconLine, IconVector, IconTriangle, IconCircle, IconText,
+    IconWire, IconDC, IconAC, IconResistor, IconInductor, IconCapacitor, IconDiode, IconSwitch
+} from './Icons';
 
 export type ToolType = 'spring' | 'wall' | 'block' | 'line' | 'catenary' | 'pulley' | 'vector' | 'triangle' | 'circle' | 'text'
     | 'dcsource' | 'acsource' | 'resistor' | 'inductor' | 'capacitor' | 'diode' | 'switch' | 'wire';
@@ -13,9 +18,8 @@ interface TooltipState {
     left: number;
 }
 
-// Extract sub-components to prevent re-creation on render (fixes scroll reset)
-
-const ToolButton: React.FC<{ label: string; icon: string; onClick: () => void; color?: string }> = ({ label, icon, onClick, color }) => {
+// Updated to accept ReactNode for icon
+const ToolButton: React.FC<{ label: string; icon: React.ReactNode; onClick: () => void; color?: string }> = ({ label, icon, onClick, color }) => {
     const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, top: 0, left: 0 });
     const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -45,7 +49,9 @@ const ToolButton: React.FC<{ label: string; icon: string; onClick: () => void; c
                 onClick={onClick}
                 className={`flex items-center justify-center w-10 h-10 rounded-md transition-all text-gray-600 hover:bg-black/5 hover:text-blue-600 ${color ? 'text-' + color + '-600' : ''}`}
             >
-                <span className="text-xl leading-none">{icon}</span>
+                <div className="text-current w-6 h-6 flex items-center justify-center">
+                    {icon}
+                </div>
             </button>
 
             {/* Custom Tooltip - Fixed Position to escape overflow clipping */}
@@ -77,33 +83,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ onAdd }) => {
         <div className="w-16 bg-[#f5f5f5] border-r border-[#e0e0e0] flex flex-col items-center py-2 gap-1 overflow-y-auto custom-scrollbar flex-shrink-0 z-20">
 
             <GroupHeader label="Phys" />
-            <ToolButton label="Block" icon="□" onClick={() => onAdd('block')} />
-            <ToolButton label="Wall" icon="▧" onClick={() => onAdd('wall')} />
-            <ToolButton label="Pulley" icon="◎" onClick={() => onAdd('pulley')} />
-            <ToolButton label="Spring" icon="⌇" onClick={() => onAdd('spring')} />
-            <ToolButton label="Rope" icon="◡" onClick={() => onAdd('catenary')} />
+            <ToolButton label="Block" icon={<IconBlock />} onClick={() => onAdd('block')} />
+            <ToolButton label="Wall" icon={<IconWall />} onClick={() => onAdd('wall')} />
+            <ToolButton label="Pulley" icon={<IconPulley />} onClick={() => onAdd('pulley')} />
+            <ToolButton label="Spring" icon={<IconSpring />} onClick={() => onAdd('spring')} />
+            <ToolButton label="Rope" icon={<IconRope />} onClick={() => onAdd('catenary')} />
 
             <Separator />
 
             <GroupHeader label="Shape" />
-            <ToolButton label="Line" icon="／" onClick={() => onAdd('line')} />
-            <ToolButton label="Vector" icon="→" onClick={() => onAdd('vector')} />
-            <ToolButton label="Triangle" icon="△" onClick={() => onAdd('triangle')} />
-            <ToolButton label="Circle" icon="○" onClick={() => onAdd('circle')} />
-            <ToolButton label="Text" icon="T" onClick={() => onAdd('text')} />
+            <ToolButton label="Line" icon={<IconLine />} onClick={() => onAdd('line')} />
+            <ToolButton label="Vector" icon={<IconVector />} onClick={() => onAdd('vector')} />
+            <ToolButton label="Triangle" icon={<IconTriangle />} onClick={() => onAdd('triangle')} />
+            <ToolButton label="Circle" icon={<IconCircle />} onClick={() => onAdd('circle')} />
+            <ToolButton label="Text" icon={<IconText />} onClick={() => onAdd('text')} />
 
             <Separator />
 
             <GroupHeader label="Circuit" />
-            <ToolButton label="Wire" icon="—" onClick={() => onAdd('wire')} />
-            <ToolButton label="DC Source" icon="DC" onClick={() => onAdd('dcsource')} />
-            <ToolButton label="AC Source" icon="AC" onClick={() => onAdd('acsource')} />
-            <ToolButton label="Resistor" icon="R" onClick={() => onAdd('resistor')} />
-            <ToolButton label="Inductor" icon="I" onClick={() => onAdd('inductor')} />
-            <ToolButton label="Capacitor" icon="C" onClick={() => onAdd('capacitor')} />
-            <ToolButton label="Diode" icon="D" onClick={() => onAdd('diode')} />
-            <ToolButton label="Switch" icon="S" onClick={() => onAdd('switch')} />
+            <ToolButton label="Wire" icon={<IconWire />} onClick={() => onAdd('wire')} />
+            <ToolButton label="DC Source" icon={<IconDC />} onClick={() => onAdd('dcsource')} />
+            <ToolButton label="AC Source" icon={<IconAC />} onClick={() => onAdd('acsource')} />
+            <ToolButton label="Resistor" icon={<IconResistor />} onClick={() => onAdd('resistor')} />
+            <ToolButton label="Inductor" icon={<IconInductor />} onClick={() => onAdd('inductor')} />
+            <ToolButton label="Capacitor" icon={<IconCapacitor />} onClick={() => onAdd('capacitor')} />
+            <ToolButton label="Diode" icon={<IconDiode />} onClick={() => onAdd('diode')} />
+            <ToolButton label="Switch" icon={<IconSwitch />} onClick={() => onAdd('switch')} />
 
         </div>
     );
 };
+
