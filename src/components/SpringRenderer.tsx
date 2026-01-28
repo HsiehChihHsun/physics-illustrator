@@ -23,6 +23,8 @@ interface SpringRendererProps {
     fontFamily?: 'Inter' | 'STIX Two Text';
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
@@ -39,8 +41,11 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
         fontSize = 20,
         fontFamily = 'Inter',
         bold = false,
-        italic = false
+        italic = false,
+        startDot = false,
+        endDot = false
     } = props;
+    const dotRadius = Math.max(strokeWidth * 1.5, 3.5);
     const { d, labelPos } = useMemo(() => {
         const startVec = new Vector2(start.x, start.y);
         const endVec = new Vector2(end.x, end.y);
@@ -148,6 +153,8 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
+            {startDot && <circle cx={start.x} cy={start.y} r={dotRadius} fill={strokeColor} />}
+            {endDot && <circle cx={end.x} cy={end.y} r={dotRadius} fill={strokeColor} />}
             {label && (
                 <MathLabel
                     center={labelPos}

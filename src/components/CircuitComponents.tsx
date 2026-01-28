@@ -34,7 +34,9 @@ export const DCSourceRenderer: React.FC<DCSourceProps> = ({
     fontSize = 20,
     fontFamily = 'Inter',
     bold = false,
-    italic = false
+    italic = false,
+    startDot = false,
+    endDot = false
 }) => {
     const startVec = new Vector2(start.x, start.y);
     const endVec = new Vector2(end.x, end.y);
@@ -117,6 +119,8 @@ export const DCSourceRenderer: React.FC<DCSourceProps> = ({
 
     return (
         <g>
+            {startDot && <circle cx={start.x} cy={start.y} r={3.5} fill="black" />}
+            {endDot && <circle cx={end.x} cy={end.y} r={3.5} fill="black" />}
             {elements}
             {label && (
                 <MathLabel center={labelP} content={label} fontSize={fontSize} fontFamily={fontFamily} bold={bold} italic={italic} color="black" />
@@ -180,10 +184,13 @@ interface CapacitorProps {
     fontFamily?: 'Inter' | 'STIX Two Text';
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export const CapacitorRenderer: React.FC<CapacitorProps> = ({
-    start, end, width = 24, separation = 8, label, flipLabel, fontSize = 20, fontFamily = 'Inter', bold, italic
+    start, end, width = 24, separation = 8, label, flipLabel, fontSize = 20, fontFamily = 'Inter', bold, italic,
+    startDot = false, endDot = false
 }) => {
     const startVec = new Vector2(start.x, start.y);
     const endVec = new Vector2(end.x, end.y);
@@ -207,6 +214,8 @@ export const CapacitorRenderer: React.FC<CapacitorProps> = ({
 
     return (
         <g>
+            {startDot && <circle cx={start.x} cy={start.y} r={3.5} fill="black" />}
+            {endDot && <circle cx={end.x} cy={end.y} r={3.5} fill="black" />}
             {/* Wires */}
             <line x1={start.x} y1={start.y} x2={plate1Center.x} y2={plate1Center.y} stroke="black" strokeWidth={2} />
             <line x1={end.x} y1={end.y} x2={plate2Center.x} y2={plate2Center.y} stroke="black" strokeWidth={2} />
@@ -233,10 +242,13 @@ interface DiodeProps {
     fontFamily?: 'Inter' | 'STIX Two Text';
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export const DiodeRenderer: React.FC<DiodeProps> = ({
-    start, end, scale = 1.0, label, flipLabel, fontSize = 20, fontFamily = 'Inter', bold, italic
+    start, end, scale = 1.0, label, flipLabel, fontSize = 20, fontFamily = 'Inter', bold, italic,
+    startDot = false, endDot = false
 }) => {
     const startVec = new Vector2(start.x, start.y);
     const endVec = new Vector2(end.x, end.y);
@@ -265,6 +277,8 @@ export const DiodeRenderer: React.FC<DiodeProps> = ({
 
     return (
         <g>
+            {startDot && <circle cx={start.x} cy={start.y} r={3.5} fill="black" />}
+            {endDot && <circle cx={end.x} cy={end.y} r={3.5} fill="black" />}
             {/* Wires */}
             <line x1={start.x} y1={start.y} x2={triBase.x} y2={triBase.y} stroke="black" strokeWidth={2} />
             <line x1={end.x} y1={end.y} x2={triTip.x} y2={triTip.y} stroke="black" strokeWidth={2} />
@@ -294,10 +308,13 @@ interface SwitchProps {
     fontFamily?: 'Inter' | 'STIX Two Text';
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export const SwitchRenderer: React.FC<SwitchProps> = ({
-    start, end, isOpen = true, angle = 30, label, flipLabel, fontSize = 20, fontFamily = 'Inter', bold, italic
+    start, end, isOpen = true, angle = 30, label, flipLabel, fontSize = 20, fontFamily = 'Inter', bold, italic,
+    startDot = false, endDot = false
 }) => {
     const startVec = new Vector2(start.x, start.y);
     const endVec = new Vector2(end.x, end.y);
@@ -333,6 +350,8 @@ export const SwitchRenderer: React.FC<SwitchProps> = ({
 
     return (
         <g>
+            {startDot && <circle cx={start.x} cy={start.y} r={3.5} fill="black" />}
+            {endDot && <circle cx={end.x} cy={end.y} r={3.5} fill="black" />}
             {/* Wires */}
             <line x1={start.x} y1={start.y} x2={openStart.x} y2={openStart.y} stroke="black" strokeWidth={2} />
             <line x1={end.x} y1={end.y} x2={openEnd.x} y2={openEnd.y} stroke="black" strokeWidth={2} />

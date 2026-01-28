@@ -143,6 +143,8 @@ export interface DCSourceObject extends BaseObject {
     fontSize?: number;
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export interface ACSourceObject extends BaseObject {
@@ -167,6 +169,8 @@ export interface ResistorObject extends BaseObject {
     fontSize?: number;
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export interface InductorObject extends BaseObject {
@@ -180,6 +184,8 @@ export interface InductorObject extends BaseObject {
     fontSize?: number;
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export interface CapacitorObject extends BaseObject {
@@ -193,6 +199,8 @@ export interface CapacitorObject extends BaseObject {
     fontSize?: number;
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export interface DiodeObject extends BaseObject {
@@ -205,6 +213,8 @@ export interface DiodeObject extends BaseObject {
     fontSize?: number;
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export interface SwitchObject extends BaseObject {
@@ -218,6 +228,8 @@ export interface SwitchObject extends BaseObject {
     fontSize?: number;
     bold?: boolean;
     italic?: boolean;
+    startDot?: boolean;
+    endDot?: boolean;
 }
 
 export interface WireObject extends BaseObject {

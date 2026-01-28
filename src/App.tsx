@@ -110,7 +110,6 @@ function App() {
         newObj = { id: generateId('wall'), type: 'wall', start: new Vector2(center.x - 100, center.y + 100), end: new Vector2(center.x + 100, center.y + 100), hatchAngle: 45 };
         break;
       case 'block':
-      case 'block':
         // Default 12 units = 75px
         newObj = { id: generateId('block'), type: 'block', center: new Vector2(center.x, center.y), size: new Vector2(12 * UNIT_PX, 12 * UNIT_PX), massLabel: "M", rotation: 0, fontSize: 20 };
         break;
@@ -142,7 +141,6 @@ function App() {
       }
 
       case 'circle':
-      case 'circle':
         // Radius 6 units (37.5px)
         newObj = { id: generateId('circ'), type: 'circle', center: new Vector2(center.x, center.y), radius: 6 * UNIT_PX };
         break;
@@ -162,13 +160,13 @@ function App() {
         // ... (Circuit component logic is same as before, simplified for brevity in this chunk, assuming unchanged but I will copy-paste the whole logic to be safe if I had to. But wait, I can just not touch the switch case logic if I don't need to. I will preserve it in the replacement.)
         // Actually, to replace correctly, I need to match the source. Let's just assume the circuit cases are fine. I will reconstruct them based on the `view_file`.
         if (type === 'wire') newObj = { id: generateId('wire'), type: 'wire', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), startDot: false, endDot: false, showArrow: false, flipArrow: false, label: "", flipLabel: false, fontSize: 20 };
-        if (type === 'dcsource') newObj = { id: generateId('dc'), type: 'dcsource', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), cells: 1, showPolarity: false, flipPolarity: false, showTerminals: true, width: 36, spacing: 8, label: "", flipLabel: false, fontSize: 20 };
+        if (type === 'dcsource') newObj = { id: generateId('dc'), type: 'dcsource', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), cells: 1, showPolarity: false, flipPolarity: false, showTerminals: true, width: 36, spacing: 8, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
         if (type === 'acsource') newObj = { id: generateId('ac'), type: 'acsource', center: new Vector2(center.x, center.y), radius: 25, label: "", flipLabel: false, fontSize: 20 };
-        if (type === 'resistor') newObj = { id: generateId('res'), type: 'resistor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 3 * UNIT_PX, coils: 4, label: "", flipLabel: false, fontSize: 20 };
-        if (type === 'inductor') newObj = { id: generateId('ind'), type: 'inductor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 3 * UNIT_PX, coils: 6, label: "", flipLabel: false, fontSize: 20 };
-        if (type === 'capacitor') newObj = { id: generateId('cap'), type: 'capacitor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 6.5 * UNIT_PX, separation: 1.5 * UNIT_PX, label: "", flipLabel: false, fontSize: 20 };
-        if (type === 'diode') newObj = { id: generateId('dio'), type: 'diode', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), scale: 1.0, label: "", flipLabel: false, fontSize: 20 };
-        if (type === 'switch') newObj = { id: generateId('sw'), type: 'switch', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), isOpen: true, angle: 35, label: "", flipLabel: false, fontSize: 20 };
+        if (type === 'resistor') newObj = { id: generateId('res'), type: 'resistor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 3 * UNIT_PX, coils: 4, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
+        if (type === 'inductor') newObj = { id: generateId('ind'), type: 'inductor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 3 * UNIT_PX, coils: 6, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
+        if (type === 'capacitor') newObj = { id: generateId('cap'), type: 'capacitor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 6.5 * UNIT_PX, separation: 1.5 * UNIT_PX, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
+        if (type === 'diode') newObj = { id: generateId('dio'), type: 'diode', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), scale: 1.0, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
+        if (type === 'switch') newObj = { id: generateId('sw'), type: 'switch', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), isOpen: true, angle: 35, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
         break;
     }
 
@@ -637,13 +635,13 @@ function App() {
 
       // Copy remainder of switch cases blindly from view_file...
       case 'wire': { const o = selectedObject as any; return { title: 'Wire', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Current Arrow', type: 'boolean', value: o.showArrow, onChange: (v) => handlePropertyChange('showArrow', v) }, ...(o.showArrow ? [{ label: 'Flip Arrow', type: 'boolean', value: o.flipArrow, onChange: (v) => handlePropertyChange('flipArrow', v) } as PropertyConfig] : []), { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Start Dot', type: 'boolean', value: o.startDot, onChange: (v) => handlePropertyChange('startDot', v) }, { label: 'End Dot', type: 'boolean', value: o.endDot, onChange: (v) => handlePropertyChange('endDot', v) }] }; }
-      case 'dcsource': { const o = selectedObject as any; return { title: 'DC Source', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: 'Cells', type: 'select', value: o.cells, options: ['1', '2', '3', '4'], onChange: (v) => handlePropertyChange('cells', parseInt(v)) }, { label: 'Polarity (+/-)', type: 'boolean', value: o.showPolarity, onChange: (v) => handlePropertyChange('showPolarity', v) }, ...(o.showPolarity ? [{ label: 'Flip Polarity', type: 'boolean', value: o.flipPolarity || false, onChange: (v) => handlePropertyChange('flipPolarity', v) } as PropertyConfig] : []), { label: 'Terminals', type: 'boolean', value: o.showTerminals, onChange: (v) => handlePropertyChange('showTerminals', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.5, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Spacing', type: 'number', value: toUnit(o.spacing), min: 0.1, max: 5, step: 0.1, onChange: (v) => handlePropertyChange('spacing', fromUnit(v)) }] }; }
+      case 'dcsource': { const o = selectedObject as any; return { title: 'DC Source', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: 'Cells', type: 'select', value: o.cells, options: ['1', '2', '3', '4'], onChange: (v) => handlePropertyChange('cells', parseInt(v)) }, { label: 'Polarity (+/-)', type: 'boolean', value: o.showPolarity, onChange: (v) => handlePropertyChange('showPolarity', v) }, ...(o.showPolarity ? [{ label: 'Flip Polarity', type: 'boolean', value: o.flipPolarity || false, onChange: (v) => handlePropertyChange('flipPolarity', v) } as PropertyConfig] : []), { label: 'Terminals', type: 'boolean', value: o.showTerminals, onChange: (v) => handlePropertyChange('showTerminals', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.5, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Spacing', type: 'number', value: toUnit(o.spacing), min: 0.1, max: 5, step: 0.1, onChange: (v) => handlePropertyChange('spacing', fromUnit(v)) }, { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Start Dot', type: 'boolean', value: o.startDot || false, onChange: (v) => handlePropertyChange('startDot', v) }, { label: 'End Dot', type: 'boolean', value: o.endDot || false, onChange: (v) => handlePropertyChange('endDot', v) }] }; }
       case 'acsource': { const o = selectedObject as any; return { title: 'AC Source', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: 'Radius', type: 'number', value: toUnit(o.radius), min: 1, max: 20, step: 0.5, onChange: (v) => handlePropertyChange('radius', fromUnit(v)) }] }; }
-      case 'resistor': { const o = selectedObject as any; return { title: 'Resistor', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: '', type: 'action-group', value: null, actions: [{ label: '+Ω', value: (o.label || '') + '$$\\Omega$$' }, { label: '+kΩ', value: (o.label || '') + '$$k\\Omega$$' }], onChange: (v) => handlePropertyChange('label', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.2, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Coils', type: 'range', value: o.coils, min: 2, max: 20, step: 1, onChange: (v) => handlePropertyChange('coils', v) }] }; }
-      case 'inductor': { const o = selectedObject as any; return { title: 'Inductor', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: '', type: 'action-group', value: null, actions: [{ label: '+mH', value: (o.label || '') + '$$mH$$' }, { label: '+μH', value: (o.label || '') + '$$\\mu H$$' }], onChange: (v) => handlePropertyChange('label', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.2, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Loops', type: 'range', value: o.coils, min: 2, max: 20, step: 1, onChange: (v) => handlePropertyChange('coils', v) }] }; }
-      case 'capacitor': { const o = selectedObject as any; return { title: 'Capacitor', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: '', type: 'action-group', value: null, actions: [{ label: '+μF', value: (o.label || '') + '$$\\mu F$$' }, { label: '+pF', value: (o.label || '') + '$$pF$$' }], onChange: (v) => handlePropertyChange('label', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.5, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Separation', type: 'number', value: toUnit(o.separation), min: 0.1, max: 10, step: 0.1, onChange: (v) => handlePropertyChange('separation', fromUnit(v)) }] }; }
-      case 'diode': { const o = selectedObject as any; return { title: 'Diode', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: 'Scale', type: 'range', value: (o.scale || 1.0) * 100, min: 60, max: 200, step: 10, onChange: (v) => handlePropertyChange('scale', v / 100) }] }; }
-      case 'switch': { const o = selectedObject as any; return { title: 'Switch', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'State', type: 'select', value: o.isOpen ? 'Open' : 'Closed', options: ['Open', 'Closed'], onChange: (v) => handlePropertyChange('isOpen', v === 'Open') }, ...(o.isOpen ? [{ label: 'Angle', type: 'range', value: o.angle, min: 0, max: 90, onChange: (v) => handlePropertyChange('angle', v) } as PropertyConfig] : [])] }; }
+      case 'resistor': { const o = selectedObject as any; return { title: 'Resistor', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: '', type: 'action-group', value: null, actions: [{ label: '+Ω', value: (o.label || '') + '$$\\Omega$$' }, { label: '+kΩ', value: (o.label || '') + '$$k\\Omega$$' }], onChange: (v) => handlePropertyChange('label', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.2, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Coils', type: 'range', value: o.coils, min: 2, max: 20, step: 1, onChange: (v) => handlePropertyChange('coils', v) }, { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Start Dot', type: 'boolean', value: o.startDot || false, onChange: (v) => handlePropertyChange('startDot', v) }, { label: 'End Dot', type: 'boolean', value: o.endDot || false, onChange: (v) => handlePropertyChange('endDot', v) }] }; }
+      case 'inductor': { const o = selectedObject as any; return { title: 'Inductor', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: '', type: 'action-group', value: null, actions: [{ label: '+mH', value: (o.label || '') + '$$mH$$' }, { label: '+μH', value: (o.label || '') + '$$\\mu H$$' }], onChange: (v) => handlePropertyChange('label', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.2, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Loops', type: 'range', value: o.coils, min: 2, max: 20, step: 1, onChange: (v) => handlePropertyChange('coils', v) }, { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Start Dot', type: 'boolean', value: o.startDot || false, onChange: (v) => handlePropertyChange('startDot', v) }, { label: 'End Dot', type: 'boolean', value: o.endDot || false, onChange: (v) => handlePropertyChange('endDot', v) }] }; }
+      case 'capacitor': { const o = selectedObject as any; return { title: 'Capacitor', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: '', type: 'action-group', value: null, actions: [{ label: '+μF', value: (o.label || '') + '$$\\mu F$$' }, { label: '+pF', value: (o.label || '') + '$$pF$$' }], onChange: (v) => handlePropertyChange('label', v) }, { label: 'Width', type: 'number', value: toUnit(o.width), min: 0.5, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }, { label: 'Separation', type: 'number', value: toUnit(o.separation), min: 0.1, max: 10, step: 0.1, onChange: (v) => handlePropertyChange('separation', fromUnit(v)) }, { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Start Dot', type: 'boolean', value: o.startDot || false, onChange: (v) => handlePropertyChange('startDot', v) }, { label: 'End Dot', type: 'boolean', value: o.endDot || false, onChange: (v) => handlePropertyChange('endDot', v) }] }; }
+      case 'diode': { const o = selectedObject as any; return { title: 'Diode', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) }, { label: 'Scale', type: 'range', value: (o.scale || 1.0) * 100, min: 60, max: 200, step: 10, onChange: (v) => handlePropertyChange('scale', v / 100) }, { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Start Dot', type: 'boolean', value: o.startDot || false, onChange: (v) => handlePropertyChange('startDot', v) }, { label: 'End Dot', type: 'boolean', value: o.endDot || false, onChange: (v) => handlePropertyChange('endDot', v) }] }; }
+      case 'switch': { const o = selectedObject as any; return { title: 'Switch', props: [{ label: 'Label', type: 'text', value: o.label || '', onChange: (v) => handlePropertyChange('label', v) }, { label: 'State', type: 'select', value: o.isOpen ? 'Open' : 'Closed', options: ['Open', 'Closed'], onChange: (v) => handlePropertyChange('isOpen', v === 'Open') }, ...(o.isOpen ? [{ label: 'Angle', type: 'range', value: o.angle, min: 0, max: 90, onChange: (v) => handlePropertyChange('angle', v) } as PropertyConfig] : []), { label: '', type: 'separator', value: null, onChange: () => { } }, { label: 'Start Dot', type: 'boolean', value: o.startDot || false, onChange: (v) => handlePropertyChange('startDot', v) }, { label: 'End Dot', type: 'boolean', value: o.endDot || false, onChange: (v) => handlePropertyChange('endDot', v) }] }; }
 
       default:
         return { title: '', props: [] };
@@ -665,75 +663,70 @@ function App() {
       // Fallback if empty scene
       minX = 0; minY = 0; maxX = canvasCoords; maxY = canvasCoords;
     } else {
+      // Helper to expand bounds safely
+      const checkBounds = (x: number, y: number, margin: number = 0) => {
+        if (x - margin < minX) minX = x - margin;
+        if (x + margin > maxX) maxX = x + margin;
+        if (y - margin < minY) minY = y - margin;
+        if (y + margin > maxY) maxY = y + margin;
+      };
+
       objects.forEach(obj => {
-        // Simple bounding box approximation based on object types
-        // Ideally we would use precise geometry, but this "loose" box is safer
-        const checkPoint = (p: { x: number, y: number }) => {
-          if (p.x < minX) minX = p.x;
-          if (p.x > maxX) maxX = p.x;
-          if (p.y < minY) minY = p.y;
-          if (p.y > maxY) maxY = p.y;
-        };
-
-        const checkCircle = (c: { x: number, y: number }, r: number) => {
-          checkPoint({ x: c.x - r, y: c.y - r });
-          checkPoint({ x: c.x + r, y: c.y + r });
-        };
-
-        const checkRect = (c: { x: number, y: number }, w: number, h: number) => {
-          // Unrotated bounds for simplicity (safe overestimate)
-          const diagonal = Math.sqrt(w * w + h * h) / 2;
-          checkPoint({ x: c.x - diagonal, y: c.y - diagonal });
-          checkPoint({ x: c.x + diagonal, y: c.y + diagonal });
-        };
-
         switch (obj.type) {
           case 'spring':
           case 'line':
-          case 'wall':
-            checkPoint((obj as any).start);
-            checkPoint((obj as any).end);
-            // Add width margin
-            const width = (obj as any).width || 20;
-            minX -= width / 2; maxX += width / 2; minY -= width / 2; maxY += width / 2;
+          case 'wall': {
+            const o = obj as any;
+            const w = (o.width || 20) / 2;
+            checkBounds(o.start.x, o.start.y, w);
+            checkBounds(o.end.x, o.end.y, w);
             break;
+          }
           case 'block': {
             const b = obj as BlockObject;
-            checkRect(b.center, b.size.x, b.size.y);
+            // Check all 4 corners of unrotated rect + rotation margin approximation
+            const diagonal = Math.sqrt(b.size.x ** 2 + b.size.y ** 2) / 2;
+            checkBounds(b.center.x, b.center.y, diagonal);
             break;
           }
           case 'circle':
           case 'pulley': {
             const c = obj as any;
-            checkCircle(c.center, c.radius);
+            checkBounds(c.center.x, c.center.y, c.radius);
+            if (c.type === 'pulley' && c.hasHanger) {
+              checkBounds(c.center.x, c.center.y, c.radius + (c.hangerLength || 0));
+            }
             break;
           }
           case 'vector': {
             const v = obj as VectorObject;
-            checkPoint(v.anchor);
-            checkPoint(v.tip);
-            // Label approximate margin
-            minX -= 20; maxX += 20; minY -= 20; maxY += 20;
+            checkBounds(v.anchor.x, v.anchor.y, 10);
+            checkBounds(v.tip.x, v.tip.y, 20); // Label margin
             break;
           }
           case 'text': {
             const t = obj as TextObject;
             // Text size approximation
-            checkRect(t.center, (t.content.length * (t.fontSize || 20) * 0.6), (t.fontSize || 20));
+            const w = t.content.length * (t.fontSize || 20) * 0.6;
+            const h = (t.fontSize || 20);
+            checkBounds(t.center.x, t.center.y, Math.max(w, h) / 2 + 10); // Approx center to edge
             break;
           }
           case 'triangle': {
             const tri = obj as TriangleObject;
-            checkPoint(tri.p1); checkPoint(tri.p2); checkPoint(tri.p3);
+            checkBounds(tri.p1.x, tri.p1.y);
+            checkBounds(tri.p2.x, tri.p2.y);
+            checkBounds(tri.p3.x, tri.p3.y);
             break;
           }
           case 'catenary': {
             const cat = obj as CatenaryObject;
-            checkPoint(cat.start); checkPoint(cat.end);
-            // Slack approximation - assume lowest point can drop by slack amount
-            if (cat.start.y > maxY) maxY = cat.start.y;
-            if (cat.end.y > maxY) maxY = cat.end.y;
-            maxY += cat.slack;
+            checkBounds(cat.start.x, cat.start.y);
+            checkBounds(cat.end.x, cat.end.y);
+            // Slack approximation
+            const midX = (cat.start.x + cat.end.x) / 2;
+            const midY = (cat.start.y + cat.end.y) / 2;
+            checkBounds(midX, midY + cat.slack);
             break;
           }
           // Circuit Export Bounds
@@ -746,16 +739,15 @@ function App() {
           case 'switch':
             {
               const o = obj as any;
-              checkPoint(o.start); checkPoint(o.end);
-              // Approx width margin
-              const w = o.width || 40;
-              minX -= w; maxX += w; minY -= w; maxY += w;
+              const w = (o.width || 40) / 2;
+              checkBounds(o.start.x, o.start.y, w);
+              checkBounds(o.end.x, o.end.y, w);
               break;
             }
           case 'acsource':
             {
               const o = obj as ACSourceObject;
-              checkCircle(o.center, o.radius);
+              checkBounds(o.center.x, o.center.y, o.radius);
               break;
             }
         }
@@ -1044,21 +1036,21 @@ function App() {
                       case 'wire':
                         return <WireRenderer key={obj.id} start={(obj as WireObject).start} end={(obj as WireObject).end} startDot={(obj as WireObject).startDot} endDot={(obj as WireObject).endDot} showArrow={(obj as WireObject).showArrow} flipArrow={(obj as WireObject).flipArrow} label={(obj as WireObject).label} flipLabel={(obj as WireObject).flipLabel} fontSize={(obj as WireObject).fontSize} fontFamily={fontFamily} bold={(obj as WireObject).bold} italic={(obj as WireObject).italic} />;
                       case 'dcsource':
-                        return <DCSourceRenderer key={obj.id} start={(obj as DCSourceObject).start} end={(obj as DCSourceObject).end} cells={(obj as DCSourceObject).cells} showPolarity={(obj as DCSourceObject).showPolarity} flipPolarity={(obj as DCSourceObject).flipPolarity} showTerminals={(obj as DCSourceObject).showTerminals} width={(obj as DCSourceObject).width} spacing={(obj as DCSourceObject).spacing} label={(obj as DCSourceObject).label} flipLabel={(obj as DCSourceObject).flipLabel} fontSize={(obj as DCSourceObject).fontSize} fontFamily={fontFamily} bold={(obj as DCSourceObject).bold} italic={(obj as DCSourceObject).italic} />;
+                        return <DCSourceRenderer key={obj.id} start={(obj as DCSourceObject).start} end={(obj as DCSourceObject).end} cells={(obj as DCSourceObject).cells} showPolarity={(obj as DCSourceObject).showPolarity} flipPolarity={(obj as DCSourceObject).flipPolarity} showTerminals={(obj as DCSourceObject).showTerminals} width={(obj as DCSourceObject).width} spacing={(obj as DCSourceObject).spacing} label={(obj as DCSourceObject).label} flipLabel={(obj as DCSourceObject).flipLabel} fontSize={(obj as DCSourceObject).fontSize} fontFamily={fontFamily} bold={(obj as DCSourceObject).bold} italic={(obj as DCSourceObject).italic} startDot={(obj as DCSourceObject).startDot} endDot={(obj as DCSourceObject).endDot} />;
                       case 'acsource':
                         return <ACSourceRenderer key={obj.id} center={(obj as ACSourceObject).center} radius={(obj as ACSourceObject).radius} label={(obj as ACSourceObject).label} flipLabel={(obj as ACSourceObject).flipLabel} fontSize={(obj as ACSourceObject).fontSize} fontFamily={fontFamily} bold={(obj as ACSourceObject).bold} italic={(obj as ACSourceObject).italic} />;
                       case 'resistor':
                         // Reuse SpringRenderer with zigzag, properly cast
-                        return <SpringRenderer key={obj.id} start={(obj as ResistorObject).start} end={(obj as ResistorObject).end} width={(obj as ResistorObject).width} coils={(obj as ResistorObject).coils} style="zigzag" label={(obj as ResistorObject).label} flipLabel={(obj as ResistorObject).flipLabel} fontSize={(obj as ResistorObject).fontSize} fontFamily={fontFamily} bold={(obj as ResistorObject).bold} italic={(obj as ResistorObject).italic} strokeColor="#000" />;
+                        return <SpringRenderer key={obj.id} start={(obj as ResistorObject).start} end={(obj as ResistorObject).end} width={(obj as ResistorObject).width} coils={(obj as ResistorObject).coils} style="zigzag" label={(obj as ResistorObject).label} flipLabel={(obj as ResistorObject).flipLabel} fontSize={(obj as ResistorObject).fontSize} fontFamily={fontFamily} bold={(obj as ResistorObject).bold} italic={(obj as ResistorObject).italic} strokeColor="#000" startDot={(obj as ResistorObject).startDot} endDot={(obj as ResistorObject).endDot} />;
                       case 'inductor':
                         // Reuse SpringRenderer with spiral
-                        return <SpringRenderer key={obj.id} start={(obj as InductorObject).start} end={(obj as InductorObject).end} width={(obj as InductorObject).width} coils={(obj as InductorObject).coils} style="spiral" label={(obj as InductorObject).label} flipLabel={(obj as InductorObject).flipLabel} fontSize={(obj as InductorObject).fontSize} fontFamily={fontFamily} bold={(obj as InductorObject).bold} italic={(obj as InductorObject).italic} strokeColor="#000" />;
+                        return <SpringRenderer key={obj.id} start={(obj as InductorObject).start} end={(obj as InductorObject).end} width={(obj as InductorObject).width} coils={(obj as InductorObject).coils} style="spiral" label={(obj as InductorObject).label} flipLabel={(obj as InductorObject).flipLabel} fontSize={(obj as InductorObject).fontSize} fontFamily={fontFamily} bold={(obj as InductorObject).bold} italic={(obj as InductorObject).italic} strokeColor="#000" startDot={(obj as InductorObject).startDot} endDot={(obj as InductorObject).endDot} />;
                       case 'capacitor':
-                        return <CapacitorRenderer key={obj.id} start={(obj as CapacitorObject).start} end={(obj as CapacitorObject).end} width={(obj as CapacitorObject).width} separation={(obj as CapacitorObject).separation} label={(obj as CapacitorObject).label} flipLabel={(obj as CapacitorObject).flipLabel} fontSize={(obj as CapacitorObject).fontSize} fontFamily={fontFamily} bold={(obj as CapacitorObject).bold} italic={(obj as CapacitorObject).italic} />;
+                        return <CapacitorRenderer key={obj.id} start={(obj as CapacitorObject).start} end={(obj as CapacitorObject).end} width={(obj as CapacitorObject).width} separation={(obj as CapacitorObject).separation} label={(obj as CapacitorObject).label} flipLabel={(obj as CapacitorObject).flipLabel} fontSize={(obj as CapacitorObject).fontSize} fontFamily={fontFamily} bold={(obj as CapacitorObject).bold} italic={(obj as CapacitorObject).italic} startDot={(obj as CapacitorObject).startDot} endDot={(obj as CapacitorObject).endDot} />;
                       case 'diode':
-                        return <DiodeRenderer key={obj.id} start={(obj as DiodeObject).start} end={(obj as DiodeObject).end} scale={(obj as DiodeObject).scale} label={(obj as DiodeObject).label} flipLabel={(obj as DiodeObject).flipLabel} fontSize={(obj as DiodeObject).fontSize} fontFamily={fontFamily} bold={(obj as DiodeObject).bold} italic={(obj as DiodeObject).italic} />;
+                        return <DiodeRenderer key={obj.id} start={(obj as DiodeObject).start} end={(obj as DiodeObject).end} scale={(obj as DiodeObject).scale} label={(obj as DiodeObject).label} flipLabel={(obj as DiodeObject).flipLabel} fontSize={(obj as DiodeObject).fontSize} fontFamily={fontFamily} bold={(obj as DiodeObject).bold} italic={(obj as DiodeObject).italic} startDot={(obj as DiodeObject).startDot} endDot={(obj as DiodeObject).endDot} />;
                       case 'switch':
-                        return <SwitchRenderer key={obj.id} start={(obj as SwitchObject).start} end={(obj as SwitchObject).end} isOpen={(obj as SwitchObject).isOpen} angle={(obj as SwitchObject).angle} label={(obj as SwitchObject).label} flipLabel={(obj as SwitchObject).flipLabel} fontSize={(obj as SwitchObject).fontSize} fontFamily={fontFamily} bold={(obj as SwitchObject).bold} italic={(obj as SwitchObject).italic} />;
+                        return <SwitchRenderer key={obj.id} start={(obj as SwitchObject).start} end={(obj as SwitchObject).end} isOpen={(obj as SwitchObject).isOpen} angle={(obj as SwitchObject).angle} label={(obj as SwitchObject).label} flipLabel={(obj as SwitchObject).flipLabel} fontSize={(obj as SwitchObject).fontSize} fontFamily={fontFamily} bold={(obj as SwitchObject).bold} italic={(obj as SwitchObject).italic} startDot={(obj as SwitchObject).startDot} endDot={(obj as SwitchObject).endDot} />;
 
                       default: return null;
                     }
