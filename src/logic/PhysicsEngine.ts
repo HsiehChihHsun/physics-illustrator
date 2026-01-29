@@ -89,6 +89,11 @@ export const updateObjectFromHandle = (
             const o = obj as VectorObject;
             if (handleType === 'start') return { ...o, anchor: p };
             if (handleType === 'tip') return { ...o, tip: p };
+            if (handleType === 'center') {
+                const center = o.anchor.add(o.tip).div(2);
+                const delta = p.subtract(center);
+                return { ...o, anchor: o.anchor.add(delta), tip: o.tip.add(delta) };
+            }
             break;
         }
         case 'triangle': {
@@ -169,6 +174,7 @@ export const getHandlesForObject = (obj: PhysicsObject): { objectId: string, han
         const o = obj as VectorObject;
         list.push({ objectId: o.id, handleType: 'start', position: o.anchor });
         list.push({ objectId: o.id, handleType: 'tip', position: o.tip });
+        list.push({ objectId: o.id, handleType: 'center', position: o.anchor.add(o.tip).div(2) });
     } else if (obj.type === 'triangle') {
         const o = obj as TriangleObject;
         list.push({ objectId: o.id, handleType: 'p1', position: o.p1 });

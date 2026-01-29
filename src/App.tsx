@@ -125,7 +125,7 @@ function App() {
         break;
       case 'vector':
         // Tip relative to anchor
-        newObj = { id: generateId('vec'), type: 'vector', anchor: new Vector2(center.x, center.y), tip: new Vector2(center.x + 50, center.y - 50), label: "", showComponents: false, smartSnapping: true, flipLabel: false, fontSize: 20, color: 'black' };
+        newObj = { id: generateId('vec'), type: 'vector', anchor: new Vector2(center.x, center.y), tip: new Vector2(center.x + 50, center.y - 50), label: "", showComponents: false, smartSnapping: true, flipLabel: false, fontSize: 20, color: 'black', headStyle: 'filled', strokeWidth: 2, arrowSize: 16, arrowWidth: 12 };
         break;
       case 'triangle': {
         // Base 30 units (187.5px), Height 20 units (125px)
@@ -163,7 +163,7 @@ function App() {
         if (type === 'dcsource') newObj = { id: generateId('dc'), type: 'dcsource', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), cells: 1, showPolarity: false, flipPolarity: false, showTerminals: true, width: 36, spacing: 8, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
         if (type === 'acsource') newObj = { id: generateId('ac'), type: 'acsource', center: new Vector2(center.x, center.y), radius: 25, label: "", flipLabel: false, fontSize: 20 };
         if (type === 'resistor') newObj = { id: generateId('res'), type: 'resistor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 3 * UNIT_PX, coils: 4, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
-        if (type === 'inductor') newObj = { id: generateId('ind'), type: 'inductor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 3 * UNIT_PX, coils: 6, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
+        if (type === 'inductor') newObj = { id: generateId('ind'), type: 'inductor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 3 * UNIT_PX, coils: 4, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false, spiralStart: -90, spiralEnd: 90, wireRatio: 0.2 };
         if (type === 'capacitor') newObj = { id: generateId('cap'), type: 'capacitor', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), width: 6.5 * UNIT_PX, separation: 1.5 * UNIT_PX, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
         if (type === 'diode') newObj = { id: generateId('dio'), type: 'diode', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), scale: 1.0, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
         if (type === 'switch') newObj = { id: generateId('sw'), type: 'switch', start: new Vector2(center.x - 50, center.y), end: new Vector2(center.x + 50, center.y), isOpen: true, angle: 35, label: "", flipLabel: false, fontSize: 20, startDot: false, endDot: false };
@@ -563,14 +563,28 @@ function App() {
         return {
           title: 'Vector',
           props: [
+            // --- Font Section ---
+            { label: 'Font & Label', type: 'separator', value: null, onChange: () => { } },
             { label: 'Label', type: 'text', value: o.label, onChange: (v) => handlePropertyChange('label', v) },
-            { label: 'Color', type: 'color', value: o.color || 'black', onChange: (v) => handlePropertyChange('color', v) },
             { label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) },
             { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
             { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
             { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
+
+            // --- Behavior Section ---
+            { label: 'Behavior', type: 'separator', value: null, onChange: () => { } },
+            { label: 'Interact Mode', type: 'boolean', value: o.smartSnapping !== false, onChange: (v) => handlePropertyChange('smartSnapping', v) },
+            { label: '', type: 'note', value: 'Controls interaction with Block edges (slide, normal, tangent). Uncheck for free movement.', onChange: () => { } },
             { label: 'Components', type: 'boolean', value: o.showComponents, onChange: (v) => handlePropertyChange('showComponents', v) },
-            { label: 'Smart Snapping', type: 'boolean', value: o.smartSnapping !== false, onChange: (v) => handlePropertyChange('smartSnapping', v) }
+
+            // --- Appearance Section ---
+            { label: 'Appearance', type: 'separator', value: null, onChange: () => { } },
+            { label: 'Color', type: 'color', value: o.color || 'black', onChange: (v) => handlePropertyChange('color', v) },
+            { label: 'Thickness', type: 'range', value: o.strokeWidth || 3, min: 1, max: 10, step: 1, onChange: (v) => handlePropertyChange('strokeWidth', v) },
+            { label: 'Line Style', type: 'select', value: o.lineStyle || 'solid', options: ['solid', 'dashed'], onChange: (v) => handlePropertyChange('lineStyle', v) },
+            { label: 'Arrow Head', type: 'select', value: o.headStyle || 'filled', options: ['filled', 'hollow', 'simple'], onChange: (v) => handlePropertyChange('headStyle', v) },
+            { label: 'Head Length', type: 'range', value: o.arrowSize || 16, min: 5, max: 40, step: 1, onChange: (v) => handlePropertyChange('arrowSize', v) },
+            { label: 'Head Width', type: 'range', value: o.arrowWidth || 12, min: 3, max: 30, step: 1, onChange: (v) => handlePropertyChange('arrowWidth', v) }
           ]
         };
       }
@@ -628,7 +642,13 @@ function App() {
             { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
             { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
             { label: 'Coil Count', type: 'range', value: o.coils, min: 3, max: 20, step: 1, onChange: (v) => handlePropertyChange('coils', v) },
-            { label: 'Width (Units)', type: 'number', value: toUnit(o.width), min: 0.5, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) }
+            { label: 'Width (Units)', type: 'number', value: toUnit(o.width), min: 0.5, max: 20, step: 0.1, onChange: (v) => handlePropertyChange('width', fromUnit(v)) },
+            // Removed user controls for spiral angles and wire length as requested
+            // ...(o.style === 'spiral' ? [
+            //   { label: 'Start Angle', type: 'range', value: o.spiralStart ?? -90, min: -360, max: 360, step: 1, onChange: (v) => handlePropertyChange('spiralStart', v) } as PropertyConfig,
+            //   { label: 'End Angle', type: 'range', value: o.spiralEnd ?? 90, min: -360, max: 360, step: 1, onChange: (v) => handlePropertyChange('spiralEnd', v) } as PropertyConfig
+            // ] : []),
+            // { label: 'Wire Length', type: 'range', value: (o.wireRatio ?? 0.2) * 100, min: 0, max: 45, step: 1, onChange: (v) => handlePropertyChange('wireRatio', v / 100) }
           ]
         };
       }
@@ -929,7 +949,13 @@ function App() {
           <h1 className="text-xl text-gray-800 tracking-tight"><span className="font-bold">VEKTON</span> | Physics Illustrator</h1>
           <span className="text-xs text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded">v1.00</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {/* Phase 14: Drag Hint */}
+          {dragIndex !== null && (
+            <div className="hidden sm:flex px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded transition-opacity">
+              Hold Ctrl to drag freely
+            </div>
+          )}
           <button onClick={undo} disabled={!canUndo} className={`px-2 py-1 text-xs rounded font-medium transition-colors ${canUndo ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-400'}`}>Undo (Ctrl+Z)</button>
           <button onClick={redo} disabled={!canRedo} className={`px-2 py-1 text-xs rounded font-medium transition-colors ${canRedo ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' : 'bg-gray-100 text-gray-400'}`}>Redo (Ctrl+Y)</button>
         </div>
@@ -1012,7 +1038,7 @@ function App() {
 
                     switch (obj.type) {
                       case 'spring':
-                        return <SpringRenderer key={obj.id} start={(obj as SpringObject).start} end={(obj as SpringObject).end} coils={(obj as SpringObject).coils} width={(obj as SpringObject).width} style={(obj as SpringObject).style} label={(obj as SpringObject).label} flipLabel={(obj as SpringObject).flipLabel} fontSize={(obj as SpringObject).fontSize} spiralStart={(obj as SpringObject).spiralStart} spiralEnd={(obj as SpringObject).spiralEnd} fontFamily={fontFamily} bold={(obj as SpringObject).bold} italic={(obj as SpringObject).italic} />;
+                        return <SpringRenderer key={obj.id} start={(obj as SpringObject).start} end={(obj as SpringObject).end} coils={(obj as SpringObject).coils} width={(obj as SpringObject).width} style={(obj as SpringObject).style} label={(obj as SpringObject).label} flipLabel={(obj as SpringObject).flipLabel} fontSize={(obj as SpringObject).fontSize} spiralStart={(obj as SpringObject).spiralStart} spiralEnd={(obj as SpringObject).spiralEnd} fontFamily={fontFamily} bold={(obj as SpringObject).bold} italic={(obj as SpringObject).italic} wireRatio={(obj as SpringObject).wireRatio} />;
                       case 'wall':
                         return <WallRenderer key={obj.id} start={(obj as WallObject).start} end={(obj as WallObject).end} hatchAngle={(obj as WallObject).hatchAngle} />;
                       case 'block':
@@ -1024,7 +1050,7 @@ function App() {
                       case 'pulley':
                         return <PulleyRenderer key={obj.id} center={(obj as PulleyObject).center} radius={(obj as PulleyObject).radius} hasHanger={(obj as PulleyObject).hasHanger} hangerLength={(obj as PulleyObject).hangerLength} hangerAngle={(obj as PulleyObject).hangerAngle} />;
                       case 'vector':
-                        return <VectorRenderer key={obj.id} anchor={(obj as VectorObject).anchor} vector={new Vector2((obj as VectorObject).tip.x - (obj as VectorObject).anchor.x, (obj as VectorObject).tip.y - (obj as VectorObject).anchor.y)} label={(obj as VectorObject).label} showComponents={(obj as VectorObject).showComponents} flipLabel={(obj as VectorObject).flipLabel} fontSize={(obj as VectorObject).fontSize} color={(obj as VectorObject).color} fontFamily={fontFamily} bold={(obj as VectorObject).bold} italic={(obj as VectorObject).italic} />;
+                        return <VectorRenderer key={obj.id} anchor={(obj as VectorObject).anchor} vector={new Vector2((obj as VectorObject).tip.x - (obj as VectorObject).anchor.x, (obj as VectorObject).tip.y - (obj as VectorObject).anchor.y)} label={(obj as VectorObject).label} showComponents={(obj as VectorObject).showComponents} flipLabel={(obj as VectorObject).flipLabel} fontSize={(obj as VectorObject).fontSize} color={(obj as VectorObject).color} fontFamily={fontFamily} bold={(obj as VectorObject).bold} italic={(obj as VectorObject).italic} lineStyle={(obj as VectorObject).lineStyle} strokeWidth={(obj as VectorObject).strokeWidth} headStyle={(obj as VectorObject).headStyle} arrowSize={(obj as VectorObject).arrowSize} arrowWidth={(obj as VectorObject).arrowWidth} />;
                       case 'triangle':
                         return <TriangleRenderer key={obj.id} p1={(obj as TriangleObject).p1} p2={(obj as TriangleObject).p2} p3={(obj as TriangleObject).p3} />;
                       case 'circle':
@@ -1044,7 +1070,7 @@ function App() {
                         return <SpringRenderer key={obj.id} start={(obj as ResistorObject).start} end={(obj as ResistorObject).end} width={(obj as ResistorObject).width} coils={(obj as ResistorObject).coils} style="zigzag" label={(obj as ResistorObject).label} flipLabel={(obj as ResistorObject).flipLabel} fontSize={(obj as ResistorObject).fontSize} fontFamily={fontFamily} bold={(obj as ResistorObject).bold} italic={(obj as ResistorObject).italic} strokeColor="#000" startDot={(obj as ResistorObject).startDot} endDot={(obj as ResistorObject).endDot} />;
                       case 'inductor':
                         // Reuse SpringRenderer with spiral
-                        return <SpringRenderer key={obj.id} start={(obj as InductorObject).start} end={(obj as InductorObject).end} width={(obj as InductorObject).width} coils={(obj as InductorObject).coils} style="spiral" label={(obj as InductorObject).label} flipLabel={(obj as InductorObject).flipLabel} fontSize={(obj as InductorObject).fontSize} fontFamily={fontFamily} bold={(obj as InductorObject).bold} italic={(obj as InductorObject).italic} strokeColor="#000" startDot={(obj as InductorObject).startDot} endDot={(obj as InductorObject).endDot} />;
+                        return <SpringRenderer key={obj.id} start={(obj as InductorObject).start} end={(obj as InductorObject).end} width={(obj as InductorObject).width} coils={(obj as InductorObject).coils} style="spiral" label={(obj as InductorObject).label} flipLabel={(obj as InductorObject).flipLabel} fontSize={(obj as InductorObject).fontSize} fontFamily={fontFamily} bold={(obj as InductorObject).bold} italic={(obj as InductorObject).italic} strokeColor="#000" startDot={(obj as InductorObject).startDot} endDot={(obj as InductorObject).endDot} spiralStart={(obj as InductorObject).spiralStart} spiralEnd={(obj as InductorObject).spiralEnd} wireRatio={(obj as InductorObject).wireRatio} />;
                       case 'capacitor':
                         return <CapacitorRenderer key={obj.id} start={(obj as CapacitorObject).start} end={(obj as CapacitorObject).end} width={(obj as CapacitorObject).width} separation={(obj as CapacitorObject).separation} label={(obj as CapacitorObject).label} flipLabel={(obj as CapacitorObject).flipLabel} fontSize={(obj as CapacitorObject).fontSize} fontFamily={fontFamily} bold={(obj as CapacitorObject).bold} italic={(obj as CapacitorObject).italic} startDot={(obj as CapacitorObject).startDot} endDot={(obj as CapacitorObject).endDot} />;
                       case 'diode':
@@ -1118,8 +1144,65 @@ function App() {
                   />
                 )}
               </svg>
+
+              {/* Angle Display Overlay - Positioned Relative to Canvas */}
+              {typeof dragIndex === 'number' && (() => {
+                const handle = handles[dragIndex];
+                if (!handle) return null;
+                const obj = objects.find(o => o.id === handle.objectId);
+                if (!obj) return null;
+
+                if (!['wall', 'spring', 'line', 'vector', 'triangle'].includes(obj.type)) return null;
+
+                const calcAngle = (p1: Point, p2: Point) => {
+                  const dx = p2.x - p1.x;
+                  const dy = p2.y - p1.y;
+                  let theta = Math.atan2(dy, dx) * 180 / Math.PI;
+                  if (theta < 0) theta += 180;
+                  // User Request: 180 - x (Positive slope 0-90)
+                  // Horizontal (0 from prev) -> 180 -> 0 logic
+                  let displayTheta = 180 - theta;
+                  if (displayTheta >= 179.95) displayTheta = 0;
+
+                  return displayTheta.toFixed(1);
+                };
+
+                let text = '';
+                if (obj.type === 'triangle') {
+                  const t = obj as TriangleObject;
+                  if (handle.handleType === 'p1') text = `${calcAngle(t.p1, t.p2)}°, ${calcAngle(t.p1, t.p3)}°`;
+                  else if (handle.handleType === 'p2') text = `${calcAngle(t.p2, t.p1)}°, ${calcAngle(t.p2, t.p3)}°`;
+                  else if (handle.handleType === 'p3') text = `${calcAngle(t.p3, t.p1)}°, ${calcAngle(t.p3, t.p2)}°`;
+                  else return null;
+                } else {
+                  let p1, p2;
+                  if (obj.type === 'vector') {
+                    const v = obj as VectorObject;
+                    p1 = v.anchor; p2 = v.tip;
+                  } else {
+                    const o = obj as any;
+                    p1 = o.start; p2 = o.end;
+                  }
+                  text = calcAngle(p1, p2) + '°';
+                }
+
+                if (!text) return null;
+
+                return (
+                  <div
+                    className="absolute z-50 pointer-events-none bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded shadow-sm"
+                    style={{
+                      left: (cursor.x * 2 * zoom) + 16,
+                      top: (cursor.y * 2 * zoom) + 16,
+                    }}
+                  >
+                    {text}
+                  </div>
+                );
+              })()}
             </div>
           </div>
+
 
           {/* Info Overlay (Moved to bottom of Canvas Area) */}
           <div className="absolute bottom-2 left-6 pointer-events-none">
@@ -1128,6 +1211,8 @@ function App() {
               <span>{snapInfo?.snappedTo !== 'none' ? <span className="text-blue-600 font-bold">SNAP</span> : 'FREE'}</span>
             </div>
           </div>
+
+
 
         </div>
 

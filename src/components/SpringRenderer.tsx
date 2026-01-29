@@ -25,6 +25,7 @@ interface SpringRendererProps {
     italic?: boolean;
     startDot?: boolean;
     endDot?: boolean;
+    wireRatio?: number;
 }
 
 export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
@@ -43,7 +44,8 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
         bold = false,
         italic = false,
         startDot = false,
-        endDot = false
+        endDot = false,
+        wireRatio = 0.2
     } = props;
     const dotRadius = Math.max(strokeWidth * 1.5, 3.5);
     const { d, labelPos } = useMemo(() => {
@@ -65,14 +67,16 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
         const labelOffsetDir = flipLabel ? -1 : 1;
         lPos = lPos.add(perp.multiply((width / 2 + 15) * labelOffsetDir));
 
-        const bodyRatio = 0.7;
-        const lineRatio = (1 - bodyRatio) / 2; // 0.15
+        const lineRatio = wireRatio;
 
         const bodyStart = startVec.add(dir.multiply(totalLen * lineRatio));
         const bodyEnd = startVec.add(dir.multiply(totalLen * (1 - lineRatio)));
         const bodyLen = bodyEnd.distanceTo(bodyStart);
 
         let bodyPath = "";
+
+        let d1 = `M ${start.x} ${start.y} L ${bodyStart.x} ${bodyStart.y}`;
+        let d3 = `L ${end.x} ${end.y}`;
 
         if (style === 'zigzag') {
             let s = `L ${bodyStart.x} ${bodyStart.y}`;
@@ -104,18 +108,34 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
             bodyPath = s;
 
         } else if (style === 'spiral') {
-            let s = `L ${bodyStart.x} ${bodyStart.y}`;
+            // New logic: Retract wires and don't connect to axis
+            const retraction = width * 0.5;
+            // Ensure we don't retract past the start/end points if short
+            const actualRetraction = Math.min(retraction, bodyLen / 2);
+
+            const leadInEnd = bodyStart.subtract(dir.multiply(actualRetraction));
+            const leadOutStart = bodyEnd.add(dir.multiply(actualRetraction));
+
+            // Override d1 and d3 for spiral to include the bridge lines
+            // d1: Start -> LeadInEnd
+            d1 = `M ${start.x} ${start.y} L ${leadInEnd.x} ${leadInEnd.y}`;
+
+            // d3: LeadOutStart -> End. Prepend 'L' to connect from last spiral point.
+            d3 = ` L ${leadOutStart.x} ${leadOutStart.y} L ${end.x} ${end.y}`;
+
+            let s = "";
             const res = 24;
             const totalSteps = coils * res;
 
             // User Controls in Degrees -> Radians
-            const startRad = (props.spiralStart ?? 75) * Math.PI / 180;
-            const endRad = (props.spiralEnd ?? -90) * Math.PI / 180;
+            const startRad = (props.spiralStart ?? -90) * Math.PI / 180;
+            const endRad = (props.spiralEnd ?? 90) * Math.PI / 180;
 
             // Calculate sweep: N*2PI + Difference
             const sweep = coils * Math.PI * 2 + (endRad - startRad);
 
-            for (let i = 1; i <= totalSteps; i++) {
+            // Iterate 0 to Total (Inclusive of start and end)
+            for (let i = 0; i <= totalSteps; i++) {
                 const t = i / totalSteps;
                 const theta = startRad + t * sweep;
 
@@ -130,14 +150,12 @@ export const SpringRenderer: React.FC<SpringRendererProps> = (props) => {
                 const trace = dir.multiply(aVal);
 
                 const pt = pBase.add(trace).add(side);
+
+                // Always use L to connect from previous point (leadInEnd or previous spiral point)
                 s += ` L ${pt.x} ${pt.y}`;
             }
-            s += ` L ${bodyEnd.x} ${bodyEnd.y}`;
             bodyPath = s;
         }
-
-        const d1 = `M ${start.x} ${start.y} L ${bodyStart.x} ${bodyStart.y}`;
-        const d3 = `L ${end.x} ${end.y}`;
 
         return { d: d1 + bodyPath + d3, labelPos: lPos };
 

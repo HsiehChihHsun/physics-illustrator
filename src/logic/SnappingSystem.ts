@@ -124,7 +124,14 @@ export const getSnapCandidate = (
 
             const segments = [[p1, p2], [p2, p3], [p3, p4], [p4, p1]];
 
-            if (useSmartSnapping) {
+            // Retrieve the active object to check its type
+            const activeObj = scene.find(o => o.id === currentObjectId);
+            // Only allow specialized Block snapping (edges/normals) if the active object is a VECTOR
+            // AND smart snapping is enabled. For all other objects, or if disabled, just snap to midpoints (standard behavior).
+            const isVector = activeObj?.type === 'vector';
+            const shouldSnapEdges = isVector && useSmartSnapping;
+
+            if (shouldSnapEdges) {
                 for (const [start, end] of segments) {
                     // Positional
                     const res = distToSegmentSquared(activePoint, start, end);
@@ -161,7 +168,7 @@ export const getSnapCandidate = (
                     }
                 }
             } else {
-                // Smart Snapping OFF: Snap to 4 Midpoints
+                // Smart Snapping OFF or NOT a Vector: Snap to 4 Midpoints only
                 for (const [start, end] of segments) {
                     const mid = start.add(end).div(2);
                     const d = activePoint.distanceTo(mid) ** 2;

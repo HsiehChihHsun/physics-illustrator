@@ -23,6 +23,7 @@ export interface SpringObject extends BaseObject {
     spiralEnd?: number; // degrees
     bold?: boolean;
     italic?: boolean;
+    wireRatio?: number;
 }
 
 export interface WallObject extends BaseObject {
@@ -82,6 +83,12 @@ export interface VectorObject extends BaseObject {
     color?: string;
     bold?: boolean;
     italic?: boolean;
+    // New Visual Props
+    lineStyle?: 'solid' | 'dashed';
+    strokeWidth?: number; // 1-10, default 2
+    headStyle?: 'filled' | 'hollow' | 'simple';
+    arrowSize?: number; // Head Length, default 16
+    arrowWidth?: number; // Head Width, default 12
 }
 
 
@@ -186,6 +193,9 @@ export interface InductorObject extends BaseObject {
     italic?: boolean;
     startDot?: boolean;
     endDot?: boolean;
+    spiralStart?: number; // degrees
+    spiralEnd?: number; // degrees
+    wireRatio?: number; // 0 to 0.5, default 0.15
 }
 
 export interface CapacitorObject extends BaseObject {
