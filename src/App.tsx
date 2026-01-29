@@ -1038,7 +1038,8 @@ function App() {
 
                     switch (obj.type) {
                       case 'spring':
-                        return <SpringRenderer key={obj.id} start={(obj as SpringObject).start} end={(obj as SpringObject).end} coils={(obj as SpringObject).coils} width={(obj as SpringObject).width} style={(obj as SpringObject).style} label={(obj as SpringObject).label} flipLabel={(obj as SpringObject).flipLabel} fontSize={(obj as SpringObject).fontSize} spiralStart={(obj as SpringObject).spiralStart} spiralEnd={(obj as SpringObject).spiralEnd} fontFamily={fontFamily} bold={(obj as SpringObject).bold} italic={(obj as SpringObject).italic} wireRatio={(obj as SpringObject).wireRatio} />;
+                        // Enforce new standard spiral look (overriding any legacy state)
+                        return <SpringRenderer key={obj.id} start={(obj as SpringObject).start} end={(obj as SpringObject).end} coils={(obj as SpringObject).coils} width={(obj as SpringObject).width} style={(obj as SpringObject).style} label={(obj as SpringObject).label} flipLabel={(obj as SpringObject).flipLabel} fontSize={(obj as SpringObject).fontSize} spiralStart={-90} spiralEnd={90} fontFamily={fontFamily} bold={(obj as SpringObject).bold} italic={(obj as SpringObject).italic} wireRatio={0.2} />;
                       case 'wall':
                         return <WallRenderer key={obj.id} start={(obj as WallObject).start} end={(obj as WallObject).end} hatchAngle={(obj as WallObject).hatchAngle} />;
                       case 'block':
