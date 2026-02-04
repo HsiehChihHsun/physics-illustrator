@@ -80,7 +80,6 @@ export const LinearMarkerRenderer: React.FC<LinearMarkerRendererProps> = ({ obj 
     // Defaults: "down" or "right" (negative perp).
     // flipExtension toggles this.
 
-    const extDir = flipExtension ? perp : perp.multiply(-1); // Default "down" (-perp) vs "up" (perp)
     // Wait, if I flip, I want the extension to grow in the OTHER direction.
 
     // Base line: 
@@ -161,10 +160,8 @@ export const LinearMarkerRenderer: React.FC<LinearMarkerRendererProps> = ({ obj 
         // For a horizontal line, Above is -Y.
         // Perp is +Y (Down).
         // So VectorRenderer default puts it BELOW?
-        // Let's start with standard vector logic. If user says "flip label invalid", maybe I wasn't using 'flipLabel' at all.
         // Now I am using it.
 
-        const offsetDir = flipExtension ? 1 : -1;
         // Wait, flipLabel should be independent of flipExtension? 
         // User asked for "Flip Extension Side" separately.
         // "flipLabel" is for text.
