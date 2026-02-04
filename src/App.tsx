@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { toPng } from 'html-to-image';
 import { SpringRenderer } from './components/SpringRenderer';
 import { PulleyRenderer } from './components/PulleyComponents';
 import { WallRenderer, BlockRenderer } from './components/StaticBodyComponents';
@@ -868,80 +869,96 @@ function App() {
     clonedSvg.setAttribute('width', `${width * 2}px`); // High Res export
     clonedSvg.setAttribute('height', `${height * 2}px`);
 
-    // 4. Inject Styles for KaTeX and Fonts
-    // We use @import to ensure the standalone SVG has access to the necessary resources.
+    // 4. Inject Styles for KaTeX and Fonts (Inlined with Absolute Paths)
     const style = document.createElement('style');
-    style.textContent = `
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
-      @import url('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css');
-      
-      /* Hide the accessible MathML, show the visual HTML */
-      .katex-mathml { display: none; }
-      
-      /* Ensure foreignObject doesn't clip */
-      foreignObject { overflow: visible; }
-    `;
-    clonedSvg.insertBefore(style, clonedSvg.firstChild);
 
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(clonedSvg);
+    // We fetch the CSS content and replace relative font paths with absolute CDN paths
+    // This serves as a reliable way to ensure html-to-image captures the fonts
     const filename = `vekton_export_${Date.now()}.${format}`;
+    const katexCssUrl = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
+    const katexFontsBase = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/fonts/';
 
-    if (format === 'svg') {
-      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      URL.revokeObjectURL(url);
-    } else {
-      // PNG Export
-      const img = new Image();
-      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(svgBlob);
+    fetch(katexCssUrl)
+      .then(res => res.text())
+      .then(css => {
+        // Replace relative "fonts/..." with absolute "https://.../fonts/..."
+        const safeCss = css.replace(/url\((['"]?)fonts\//g, (match, quote) => `url(${quote || ''}${katexFontsBase}`);
 
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        // Export at 2x resolution (Scale Factor)
-        canvas.width = width * 2;
-        canvas.height = height * 2;
+        style.textContent = `
+           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+           ${safeCss}
+           
+           /* Hide the accessible MathML, show the visual HTML */
+           .katex-mathml { display: none; }
+           
+           /* Ensure foreignObject doesn't clip */
+           foreignObject { overflow: visible; }
+         `;
+        clonedSvg.insertBefore(style, clonedSvg.firstChild);
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        // Proceed with Export inside the promise
+        exportToPng();
+      })
+      .catch(err => {
+        console.error("Failed to fetch KaTeX CSS for export", err);
+        alert("Warning: Could not load KaTeX styles for export. Math may look incorrect.");
+        // Fallback to minimal style
+        style.textContent = `
+           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+           @import url('${katexCssUrl}');
+         `;
+        clonedSvg.insertBefore(style, clonedSvg.firstChild);
+        exportToPng();
+      });
 
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const exportToPng = () => {
+      if (format === 'svg') {
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(clonedSvg);
+        const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+      } else {
+        // PNG Export using html-to-image
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'absolute';
+        wrapper.style.top = '-9999px';
+        wrapper.style.left = '-9999px';
+        // Ensure the wrapper allows the SVG to take its full size
+        wrapper.appendChild(clonedSvg);
+        document.body.appendChild(wrapper);
 
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        toPng(clonedSvg as unknown as HTMLElement, {
+          pixelRatio: 3,
+          backgroundColor: 'white',
+          width: width * 2,
+          height: height * 2,
+          style: {
+            width: `${width * 2}px`,
+            height: `${height * 2}px`,
+            transform: 'none'
+          },
+          fontEmbedCSS: ''
+        })
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = dataUrl;
+            link.click();
+            document.body.removeChild(wrapper);
+          })
+          .catch((err) => {
+            console.error('PNG Export failed:', err);
+            alert("PNG Export failed. Please check console for details.");
+            document.body.removeChild(wrapper);
+          });
+      }
+    };
 
-        try {
-          const pngUrl = canvas.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = pngUrl;
-          link.download = filename;
-          link.click();
-          URL.revokeObjectURL(url);
-        } catch (e) {
-          console.warn("PNG export blocked by browser security (tainted canvas). Falling back to SVG.", e);
-          alert("PNG export failed because the browser blocked the conversion of external fonts/math (SecurityError). Downloading as SVG instead.");
-
-          // Fallback to SVG
-          const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-          const svgUrl = URL.createObjectURL(svgBlob);
-          const link = document.createElement('a');
-          link.href = svgUrl;
-          link.download = filename.replace('.png', '.svg');
-          link.click();
-          URL.revokeObjectURL(svgUrl);
-        }
-      };
-      img.onerror = (e) => {
-        console.error("PNG export failed. Likely due to taint issues with foreignObject or external imports.", e);
-        alert("PNG export failed. This browser might block 'foreignObject' rendering in Canvas. Please try SVG export.");
-      };
-      img.src = url;
-    }
   };
 
   // --- Actions: Save & Load ---
