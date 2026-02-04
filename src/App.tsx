@@ -882,7 +882,7 @@ function App() {
       .then(res => res.text())
       .then(css => {
         // Replace relative "fonts/..." with absolute "https://.../fonts/..."
-        const safeCss = css.replace(/url\((['"]?)fonts\//g, (match, quote) => `url(${quote || ''}${katexFontsBase}`);
+        const safeCss = css.replace(/url\((['"]?)fonts\//g, (_, quote) => `url(${quote || ''}${katexFontsBase}`);
 
         style.textContent = `
            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
