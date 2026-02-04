@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
 import {
     IconBlock, IconWall, IconPulley, IconSpring, IconRope,
-    IconLine, IconVector, IconTriangle, IconCircle, IconText,
+    IconLine, IconVector, IconLinearMarker, IconTriangle, IconCircle, IconText,
     IconWire, IconDC, IconAC, IconResistor, IconInductor, IconCapacitor, IconDiode, IconSwitch
 } from './Icons';
 
-export type ToolType = 'spring' | 'wall' | 'block' | 'line' | 'catenary' | 'pulley' | 'vector' | 'triangle' | 'circle' | 'text'
+export type ToolType = 'spring' | 'wall' | 'block' | 'line' | 'catenary' | 'pulley' | 'vector' | 'linearmarker' | 'triangle' | 'circle' | 'text'
     | 'dcsource' | 'acsource' | 'resistor' | 'inductor' | 'capacitor' | 'diode' | 'switch' | 'wire';
 
 interface SidebarProps {
@@ -94,6 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onAdd }) => {
             <GroupHeader label="Shape" />
             <ToolButton label="Line" icon={<IconLine />} onClick={() => onAdd('line')} />
             <ToolButton label="Vector" icon={<IconVector />} onClick={() => onAdd('vector')} />
+            <ToolButton label="Linear Marker" icon={<IconLinearMarker />} onClick={() => onAdd('linearmarker')} />
             <ToolButton label="Triangle" icon={<IconTriangle />} onClick={() => onAdd('triangle')} />
             <ToolButton label="Circle" icon={<IconCircle />} onClick={() => onAdd('circle')} />
             <ToolButton label="Text" icon={<IconText />} onClick={() => onAdd('text')} />

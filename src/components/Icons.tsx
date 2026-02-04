@@ -101,6 +101,16 @@ export const IconText = () => (
     </IconWrapper>
 );
 
+export const IconLinearMarker = () => (
+    <IconWrapper>
+        <line x1="3" y1="7" x2="3" y2="17" />
+        <line x1="21" y1="7" x2="21" y2="17" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <path d="M 7 9.5 L 3 12 L 7 14.5 Z" fill="currentColor" stroke="none" />
+        <path d="M 17 9.5 L 21 12 L 17 14.5 Z" fill="currentColor" stroke="none" />
+    </IconWrapper>
+);
+
 
 // --- Circuit Icons ---
 

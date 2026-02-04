@@ -1,103 +1,103 @@
-# Physics Illustrator (DrawPhy) - Local Usage Guide
+# VEKTON | Physics Illustrator (v1.01)
 
-這是一個基於 React + Vite 開發的物理繪圖工具。由於使用了現代網頁技術 (ES Modules)，因此**不能**直接雙擊 `index.html` 開啟，必須透過本地伺服器 (Localhost) 執行。
+這是一款專為物理教學與講義製作設計的向量繪圖軟體。
+除了提供流暢的互動操作體驗，還能匯出高品質的 SVG 與 PNG 圖片，幫助使用者輕鬆製作專業的物理示意圖。
 
-## 快速啟動 (Windows)
+---
 
-1.  確保電腦已安裝 [Node.js](https://nodejs.org/) (建議 LTS 版本)。
-2.  雙擊資料夾中的 **`start_app.bat`**。
-    *   如果是第一次執行，它會自動安裝所需的套件 (需要一點時間)。
-    *   安裝完成後，會自動開啟瀏覽器並進入程式 (預設網址通常是 `http://localhost:5173`)。
+## 👨‍💻 開發者資訊
 
-## 手動啟動 (Terminal)
+**開發者聯絡信箱**: <hsiehchihhsun001@gmail.com>
 
-如果您習慣使用指令列：
+> [!NOTE]
+> **Donation Link**: (Coming Soon...)
+> 如果覺得這款軟體對您有幫助，歡迎隨喜贊助支持後續開發！
 
-1.  開啟終端機 (CMD / PowerShell) 並進入專案資料夾。
-2.  安裝依賴套件 (僅需一次)：
+---
+
+## 🌐 線上即時試用
+
+無需安裝，開啟瀏覽器即可立即使用完整功能：
+👉 **[點此前往線上版 (Vercel)](https://physics-illustrator.vercel.app/)**
+
+---
+
+## 🚀 軟體主功能介紹
+
+VEKTON 旨在解決傳統繪圖軟體難以快速繪製物理元件的痛點。本軟體具備以下核心功能：
+
+1. **專業物理元件庫**
+    - 內建各類常見物理模型：彈簧 (Spring)、滑輪 (Pulley)、物塊 (Block)、繩索 (Catenary/Line)、牆壁 (Wall) 等。
+    - 電路元件支援：電阻、電容、電感、電源 (AC/DC)、開關等。
+    - 向量工具：支援自動對齊、分量顯示與箭頭樣式調整。
+
+2. **高度客製化屬性**
+    - 所有物件皆可調整屬性，包括顏色、線條粗細、尺寸與旋轉角度。
+    - 支援文字與數學符號 (LaTeX) 輸入，方便標註物理量 (如 $\theta, \vec{F}, \Delta x$)。
+    - 提供多種字體選擇 (Inter, STIX Two Text) 以符合學術排版需求。
+
+3. **精確控制與互動**
+    - 支援物件吸附 (Snapping) 功能，輕鬆對齊網格與其他物件。
+    - 即時角度顯示，方便精確調整幾何關係。
+    - 直覺的拖曳操作與選取功能，支援多物件編輯。
+
+4. **高品質匯出**
+    - 支援一鍵匯出高解析度 **PNG** 圖片 (適合簡報與網頁)。
+    - 支援匯出向量 **SVG** 檔案 (適合印刷與進階編輯)。
+    - 自動裁切畫布，僅保留繪圖範圍。
+
+---
+
+## 💻 安裝與啟動教學 (Windows)
+
+如果您希望在**沒有網路**的情況下使用，或是想要在**自己的電腦離線執行**，請依照以下步驟操作：
+
+### 步驟零：下載專案檔案
+
+如果您不熟悉 Git 指令，請直接下載壓縮檔：
+
+1. 在本專案的 GitHub 頁面右上方，找到綠色的 **"<> Code"** 按鈕。
+2. 點擊該按鈕，選擇選單中的 **"Download ZIP"**。
+3. 下載完成後，請務必**解壓縮** (按右鍵 -> 解壓縮全部) 到您的電腦中 (例如桌面)。
+
+### 第一步：安裝環境 (Node.js)
+
+1. 請前往 [Node.js 官方網站](https://nodejs.org/)。
+2. 下載並安裝 **"LTS" (長期支援版)**。
+3. 安裝過程中均點選「Next (下一步)」直到完成即可。
+
+### 第二步：取得軟體並啟動
+
+假設您已下載本專案程式碼 (或透過 Git 下載)，請開啟您存放此專案的資料夾。
+
+1. 在資料夾視窗的上方網址列輸入 `cmd` 並按 **Enter**，將會開啟黑色的終端機視窗。
+2. **首次使用**請依序複製並貼上以下指令 (滑鼠右鍵可貼上)：
+
+    **指令 1：安裝必要元件 (僅需執行一次)**
+
     ```bash
     npm install
     ```
-3.  啟動開發伺服器：
+
+    *(請等待進度條跑完，看到 `added ... packages` 字樣代表完成)*
+
+    **指令 2：啟動軟體**
+
     ```bash
     npm run dev
     ```
-4.  按住 Ctrl 並點擊終端機顯示的 Local網址 (例如 `http://localhost:5173`)。
 
-## 功能簡介
-*   **拖曳**: 移動物件 (彈簧端點、滑輪中心等)。
-*   **Ctrl 鍵**: 按住可暫時停用吸附 (Snapping)。
-*   **工具列**:上方按鈕可新增彈簧、繩索、物塊等物件。
-*   **屬性面板**: 點選物件後，右側可調整顏色、參數。
-*   **刪除**: 選取物件後按 Delete 鍵。
+3. 看到終端機顯示 `Local: http://localhost:5173/` 字樣時，請按住鍵盤 **Ctrl** 鍵並用滑鼠點擊該連結，瀏覽器將會自動開啟軟體畫面。
 
+---
 
-Currently, two official plugins are available:
+### 常見問答
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Q: 下次開啟還需要輸指令嗎？**
+  - A: 需要。每次使用時，請重複「第二步」的開啟終端機與 `npm run dev` 指令即可 (不用再 `npm install`)。或您可以直接雙擊資料夾中的 `start_app.bat` (若有的話)。
+- **Q: 畫面一片白或無法操作？**
+  - A: 請確認終端機視窗**沒有被關閉**。軟體運作時，終端機必須保持開啟。
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+© 2026 Physics Illustrator Project. All rights reserved.

@@ -16,7 +16,7 @@ export function useCanvasInteraction(
     canvasRef: RefObject<HTMLDivElement | null>,
     handles: HandleDef[] = [],
     scene: PhysicsObject[] = [],
-    onPointMove?: (index: number, newPos: Point) => void,
+    onPointMove?: (index: number, newPos: Point, modifiers?: { ctrl: boolean, shift: boolean }) => void,
     onDragStart?: () => void,
     gridSize: number = 50,
     scale: number = 1
@@ -53,7 +53,7 @@ export function useCanvasInteraction(
 
             if (!currentHandle || isSnappingDisabled) {
                 // No snapping
-                onPointMove(dragIndex, rawPoint);
+                onPointMove(dragIndex, rawPoint, { ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey });
                 setCursor(rawPoint);
                 setSnapInfo(null);
                 return;
@@ -99,7 +99,23 @@ export function useCanvasInteraction(
             }
 
             // Notify Parent
-            onPointMove(dragIndex, finalPos);
+            // Calculate modifiers
+            const modifiers = {
+                ctrl: e.ctrlKey || e.metaKey,
+                shift: e.shiftKey
+            };
+            // Note: onPointMove signature in App.tsx needs these? 
+            // Or we update the hook signature? Current hook signature: 
+            // onPointMove?: (index: number, newPos: Point) => void
+            // We need to change the type definition in hook or just pass it as 3rd arg if supported.
+            // But hook defines onPointMove type. We should update that type definition first?
+            // Actually, we can update the type definition in the replacement content here if it appears in the block.
+            // But line 19 defines it. Let's do it in two steps or check if we can reach line 19.
+            // For now, let's update the call assuming we will update the type definition too.
+            // Wait, I should update the Type Definition FIRST or in the same step if possible.
+            // Line 19 is far away.
+            // Let's defer this specific replace and first update the type definition.
+            onPointMove(dragIndex, finalPos, modifiers);
             setCursor(finalPos);
             setSnapInfo(finalSnapInfo);
         }

@@ -105,6 +105,7 @@ export const CircleRenderer: React.FC<CircleProps> = ({ center, radius }) => (
 export interface TextProps {
     center: Point;
     content: string;
+    rotation?: number;
     fontSize?: number;
     fontFamily?: 'Inter' | 'STIX Two Text';
     bold?: boolean;
@@ -114,20 +115,26 @@ export const TextRenderer: React.FC<TextProps> = ({
     center,
     content,
     fontSize = 20,
+    rotation = 0,
     fontFamily = 'Inter',
     bold = false,
     italic = false
 }) => {
+    // Convert radians to degrees
+    const degrees = rotation * 180 / Math.PI;
+
     return (
-        <MathLabel
-            center={center}
-            content={content}
-            fontSize={fontSize}
-            fontFamily={fontFamily}
-            bold={bold}
-            italic={italic}
-            color="#333"
-            className="select-none cursor-move" // Keep cursor-move for the standalone Text tool
-        />
+        <g transform={`rotate(${degrees}, ${center.x}, ${center.y})`}>
+            <MathLabel
+                center={center}
+                content={content}
+                fontSize={fontSize}
+                fontFamily={fontFamily}
+                bold={bold}
+                italic={italic}
+                color="#333"
+                className="select-none cursor-move" // Keep cursor-move for the standalone Text tool
+            />
+        </g>
     );
 };

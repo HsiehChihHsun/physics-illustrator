@@ -1,7 +1,7 @@
 import { Vector2, Point } from '../geometry/Vector2';
 
 export type ObjectType = 'spring' | 'wall' | 'block' | 'pulley' | 'vector' | 'line' | 'catenary' | 'triangle' | 'circle' | 'text'
-    | 'dcsource' | 'acsource' | 'resistor' | 'inductor' | 'capacitor' | 'diode' | 'switch' | 'wire';
+    | 'dcsource' | 'acsource' | 'resistor' | 'inductor' | 'capacitor' | 'diode' | 'switch' | 'wire' | 'linearmarker';
 
 export interface BaseObject {
     id: string;
@@ -111,8 +111,32 @@ export interface TextObject extends BaseObject {
     center: Point;
     content: string;
     fontSize: number;
+    rotation: number; // Rotation in radians
     bold?: boolean;
     italic?: boolean;
+}
+
+export interface LinearMarkerObject extends BaseObject {
+    type: 'linearmarker';
+    anchor: Point;
+    tip: Point;
+    label: string;
+    flipLabel?: boolean;
+    fontSize?: number;
+    color?: string;
+    bold?: boolean;
+    italic?: boolean;
+    // New Props for Linear Marker
+    showOneArrow?: boolean; // false = double, true = single (at tip)
+    textOnLine?: boolean; // false = side, true = on line with bg
+    dashedExtension?: boolean;
+    showExtensions?: boolean; // Toggle vertical lines
+    extensionLength?: number; // 0-20
+    flipExtension?: boolean; // New: Flip extension direction
+    strokeWidth?: number;
+    arrowSize?: number; // Head Length
+    arrowWidth?: number; // Head Width
+    labelShiftX?: number; // New: Horizontal shift for label
 }
 
 export type PhysicsObject =
@@ -133,7 +157,8 @@ export type PhysicsObject =
     | CapacitorObject
     | DiodeObject
     | SwitchObject
-    | WireObject;
+    | WireObject
+    | LinearMarkerObject;
 
 export interface DCSourceObject extends BaseObject {
     type: 'dcsource';

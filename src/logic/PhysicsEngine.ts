@@ -1,7 +1,7 @@
 import { Vector2, Point } from '../geometry/Vector2';
 import type {
     PhysicsObject, BlockObject, VectorObject,
-    SpringObject, LineObject, CatenaryObject, WallObject, PulleyObject, TriangleObject, CircleObject, TextObject
+    SpringObject, LineObject, CatenaryObject, WallObject, PulleyObject, TriangleObject, CircleObject, TextObject, LinearMarkerObject
 } from '../types/PhysicsObjects';
 
 const UNIT_PX = 6.25;
@@ -16,10 +16,14 @@ const rotate = (p: { x: number, y: number }, c: { x: number, y: number }, a: num
     );
 };
 
+// Helper to get angle from A to B
+const getAngle = (a: Point, b: Point) => Math.atan2(b.y - a.y, b.x - a.x);
+
 export const updateObjectFromHandle = (
     obj: PhysicsObject,
     handleType: string,
-    newPos: Point
+    newPos: Point,
+    modifiers?: { ctrl: boolean, shift: boolean }
 ): PhysicsObject => {
     const p = new Vector2(newPos.x, newPos.y);
 
@@ -77,6 +81,17 @@ export const updateObjectFromHandle = (
                 }
                 return { ...o, size: new Vector2(newSize.x, newSize.y) };
             }
+            if (handleType === 'rotate') {
+                // Same logic as Text
+                const angle = getAngle(o.center, p);
+                if (modifiers?.ctrl) {
+                    return { ...o, rotation: angle };
+                } else {
+                    const snapRad = 15 * Math.PI / 180;
+                    const snapped = Math.round(angle / snapRad) * snapRad;
+                    return { ...o, rotation: snapped };
+                }
+            }
             break;
         }
         case 'pulley': {
@@ -87,6 +102,17 @@ export const updateObjectFromHandle = (
         }
         case 'vector': {
             const o = obj as VectorObject;
+            if (handleType === 'start') return { ...o, anchor: p };
+            if (handleType === 'tip') return { ...o, tip: p };
+            if (handleType === 'center') {
+                const center = o.anchor.add(o.tip).div(2);
+                const delta = p.subtract(center);
+                return { ...o, anchor: o.anchor.add(delta), tip: o.tip.add(delta) };
+            }
+            break;
+        }
+        case 'linearmarker': {
+            const o = obj as LinearMarkerObject;
             if (handleType === 'start') return { ...o, anchor: p };
             if (handleType === 'tip') return { ...o, tip: p };
             if (handleType === 'center') {
@@ -117,6 +143,21 @@ export const updateObjectFromHandle = (
         case 'text': {
             const o = obj as TextObject;
             if (handleType === 'center') return { ...o, center: p };
+            if (handleType === 'rotate') {
+                // Calculate angle from center to mouse
+                const angle = getAngle(o.center, p);
+
+                // Snapping Logic
+                if (modifiers?.ctrl) {
+                    // Free rotation
+                    return { ...o, rotation: angle };
+                } else {
+                    // Snap to 15 degrees
+                    const snapRad = 15 * Math.PI / 180;
+                    const snapped = Math.round(angle / snapRad) * snapRad;
+                    return { ...o, rotation: snapped };
+                }
+            }
             break;
         }
     }
@@ -167,11 +208,22 @@ export const getHandlesForObject = (obj: PhysicsObject): { objectId: string, han
         list.push({ objectId: o.id, handleType: 'mid_left', position: rotate(left, o.center, rot) });
         list.push({ objectId: o.id, handleType: 'mid_right', position: rotate(right, o.center, rot) });
 
+        // Rotation Handle: 50px outside right edge
+        // Offset = halfW + 50
+        const rotOffset = halfW + 50;
+        const rotPos = rotate({ x: o.center.x + rotOffset, y: o.center.y }, o.center, rot);
+        list.push({ objectId: o.id, handleType: 'rotate', position: rotPos });
+
     } else if (obj.type === 'pulley') {
         const o = obj as PulleyObject;
         list.push({ objectId: o.id, handleType: 'center', position: o.center });
     } else if (obj.type === 'vector') {
         const o = obj as VectorObject;
+        list.push({ objectId: o.id, handleType: 'start', position: o.anchor });
+        list.push({ objectId: o.id, handleType: 'tip', position: o.tip });
+        list.push({ objectId: o.id, handleType: 'center', position: o.anchor.add(o.tip).div(2) });
+    } else if (obj.type === 'linearmarker') {
+        const o = obj as LinearMarkerObject;
         list.push({ objectId: o.id, handleType: 'start', position: o.anchor });
         list.push({ objectId: o.id, handleType: 'tip', position: o.tip });
         list.push({ objectId: o.id, handleType: 'center', position: o.anchor.add(o.tip).div(2) });
@@ -187,6 +239,13 @@ export const getHandlesForObject = (obj: PhysicsObject): { objectId: string, han
     } else if (obj.type === 'text') {
         const o = obj as TextObject;
         list.push({ objectId: o.id, handleType: 'center', position: o.center });
+
+        // Rotation Handle (Offset 40px to the right, rotated)
+        const offset = 40; // Pixels? No, Units maybe? Logic uses PX usually? 
+        // Using rot helper
+        const rotPos = rotate({ x: o.center.x + offset, y: o.center.y }, o.center, o.rotation || 0);
+        list.push({ objectId: o.id, handleType: 'rotate', position: rotPos });
+
     } else if (obj.type === 'wire') {
         const o = obj as any; // WireObject has start/end
         list.push({ objectId: o.id, handleType: 'start', position: o.start });

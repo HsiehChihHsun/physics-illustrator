@@ -6,6 +6,7 @@ import { SimpleLine, CatenaryRenderer, TriangleRenderer, CircleRenderer, TextRen
 import { WireRenderer } from './components/WireRenderer';
 import { DCSourceRenderer, ACSourceRenderer, CapacitorRenderer, DiodeRenderer, SwitchRenderer } from './components/CircuitComponents';
 import { VectorRenderer } from './components/VectorComponents';
+import { LinearMarkerRenderer } from './components/LinearMarkerRenderer';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import type { PropertyConfig } from './components/PropertiesPanel';
 import { Toolbar } from './components/Toolbar';
@@ -19,7 +20,7 @@ import type {
   LineObject, CatenaryObject, PulleyObject, VectorObject,
   TriangleObject, CircleObject, TextObject, ObjectType,
   DCSourceObject, ACSourceObject, ResistorObject, InductorObject,
-  CapacitorObject, DiodeObject, SwitchObject, WireObject
+  CapacitorObject, DiodeObject, SwitchObject, WireObject, LinearMarkerObject
 } from './types/PhysicsObjects';
 import { updateObjectFromHandle, getHandlesForObject } from './logic/PhysicsEngine';
 import type { HandleDef } from './types/Interactions';
@@ -127,6 +128,26 @@ function App() {
         // Tip relative to anchor
         newObj = { id: generateId('vec'), type: 'vector', anchor: new Vector2(center.x, center.y), tip: new Vector2(center.x + 50, center.y - 50), label: "", showComponents: false, smartSnapping: true, flipLabel: false, fontSize: 20, color: 'black', headStyle: 'filled', strokeWidth: 2, arrowSize: 16, arrowWidth: 12 };
         break;
+      case 'linearmarker':
+        newObj = {
+          id: generateId('lm'),
+          type: 'linearmarker',
+          anchor: new Vector2(center.x - 40, center.y),
+          tip: new Vector2(center.x + 40, center.y),
+          label: "30",
+          fontSize: 20,
+          color: 'black',
+          strokeWidth: 2,
+          arrowSize: 16,
+          arrowWidth: 12,
+          extensionLength: 0,
+          showOneArrow: false,
+          textOnLine: false,
+          dashedExtension: false,
+          showExtensions: true,
+          flipExtension: false
+        } as LinearMarkerObject;
+        break;
       case 'triangle': {
         // Base 30 units (187.5px), Height 20 units (125px)
         const halfBase = (30 * UNIT_PX) / 2;
@@ -145,7 +166,7 @@ function App() {
         newObj = { id: generateId('circ'), type: 'circle', center: new Vector2(center.x, center.y), radius: 6 * UNIT_PX };
         break;
       case 'text':
-        newObj = { id: generateId('txt'), type: 'text', center: new Vector2(center.x, center.y), content: "Text", fontSize: 24 };
+        newObj = { id: generateId('txt'), type: 'text', center: new Vector2(center.x, center.y), content: "Text", fontSize: 24, rotation: 0 };
         break;
 
       // Circuit Components
@@ -247,7 +268,7 @@ function App() {
             t.p3 = new Vector2(t.p3.x + offset.x, t.p3.y + offset.y);
           }
           // Objects with vector anchor/tip
-          if (newObj.type === 'vector') {
+          if (newObj.type === 'vector' || newObj.type === 'linearmarker') {
             const v = newObj as any;
             v.anchor = new Vector2(v.anchor.x + offset.x, v.anchor.y + offset.y);
             v.tip = new Vector2(v.tip.x + offset.x, v.tip.y + offset.y);
@@ -271,7 +292,7 @@ function App() {
 
 
   // --- 3. Handle Dragging ---
-  const handlePointMove = useCallback((index: number, newPos: Point) => {
+  const handlePointMove = useCallback((index: number, newPos: Point, modifiers?: { ctrl: boolean, shift: boolean }) => {
     const handle = handles[index];
     if (!handle) return;
 
@@ -324,7 +345,7 @@ function App() {
       // Single Object Drag/Resize
       const newObjects = objects.map(obj => {
         if (obj.id !== handle.objectId) return obj;
-        return updateObjectFromHandle(obj, handle.handleType, newPos);
+        return updateObjectFromHandle(obj, handle.handleType, newPos, modifiers);
       });
       updateState(newObjects);
     }
@@ -510,7 +531,7 @@ function App() {
             { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
             { label: 'Width (Units)', type: 'number', value: toUnit(o.size.x), min: 2, max: 50, step: 1, onChange: (v) => handlePropertyChange('size', new Vector2(fromUnit(v), o.size.y)) },
             { label: 'Height (Units)', type: 'number', value: toUnit(o.size.y), min: 2, max: 50, step: 1, onChange: (v) => handlePropertyChange('size', new Vector2(o.size.x, fromUnit(v))) },
-            { label: 'Rotation (°)', type: 'range', value: Math.round(o.rotation * 180 / Math.PI), min: 0, max: 360, step: 1, onChange: (v) => handlePropertyChange('rotation', v * Math.PI / 180) }
+            { label: 'Rotation (°)', type: 'range', value: Math.round(((o.rotation || 0) * 180 / Math.PI % 360 + 360) % 360), min: 0, max: 360, step: 15, onChange: (v) => handlePropertyChange('rotation', v * Math.PI / 180) }
           ]
         };
       }
@@ -588,6 +609,38 @@ function App() {
           ]
         };
       }
+      case 'linearmarker': {
+        const o = selectedObject as LinearMarkerObject;
+        return {
+          title: 'Linear Marker',
+          props: [
+            { label: 'Label', type: 'text', value: o.label, onChange: (v) => handlePropertyChange('label', v) },
+            { label: 'Text on Line', type: 'boolean', value: o.textOnLine || false, onChange: (v) => handlePropertyChange('textOnLine', v) },
+            ...(!o.textOnLine ? [{ label: 'Flip Label', type: 'boolean', value: o.flipLabel || false, onChange: (v) => handlePropertyChange('flipLabel', v) } as PropertyConfig] : []),
+            { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
+            { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
+            { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
+            { label: 'Label Shift X', type: 'range', value: o.labelShiftX || 0, min: -16, max: 16, step: 0.5, onChange: (v) => handlePropertyChange('labelShiftX', v) },
+
+            { label: 'Appearance', type: 'separator', value: null, onChange: () => { } },
+            { label: 'Color', type: 'color', value: o.color || 'black', onChange: (v) => handlePropertyChange('color', v) },
+            { label: 'Thickness', type: 'number', value: o.strokeWidth || 2, min: 1, max: 10, onChange: (v) => handlePropertyChange('strokeWidth', v) },
+
+            { label: 'Extensions', type: 'separator', value: null, onChange: () => { } },
+            { label: 'Show Extensions', type: 'boolean', value: o.showExtensions !== false, onChange: (v) => handlePropertyChange('showExtensions', v) },
+            ...(o.showExtensions !== false ? [
+              { label: 'Extension Len', type: 'range', value: o.extensionLength || 0, min: 0, max: 20, step: 1, onChange: (v) => handlePropertyChange('extensionLength', v) } as PropertyConfig,
+              { label: 'Dashed Ext', type: 'boolean', value: o.dashedExtension || false, onChange: (v) => handlePropertyChange('dashedExtension', v) } as PropertyConfig,
+              { label: 'Flip Ext Side', type: 'boolean', value: o.flipExtension || false, onChange: (v) => handlePropertyChange('flipExtension', v) } as PropertyConfig
+            ] : []),
+
+            { label: 'Arrows', type: 'separator', value: null, onChange: () => { } },
+            { label: 'Single Arrow', type: 'boolean', value: o.showOneArrow || false, onChange: (v) => handlePropertyChange('showOneArrow', v) },
+            { label: 'Head Length', type: 'range', value: o.arrowSize || 16, min: 5, max: 40, step: 1, onChange: (v) => handlePropertyChange('arrowSize', v) },
+            { label: 'Head Width', type: 'range', value: o.arrowWidth || 12, min: 3, max: 30, step: 1, onChange: (v) => handlePropertyChange('arrowWidth', v) }
+          ]
+        };
+      }
       case 'text': {
         const o = selectedObject as TextObject;
         return {
@@ -597,6 +650,7 @@ function App() {
             { label: 'Font Size', type: 'number', value: o.fontSize || 20, min: 8, max: 100, step: 1, onChange: (v) => handlePropertyChange('fontSize', v) },
             { label: 'Bold', type: 'boolean', value: o.bold || false, onChange: (v) => handlePropertyChange('bold', v) },
             { label: 'Italic', type: 'boolean', value: o.italic || false, onChange: (v) => handlePropertyChange('italic', v) },
+            { label: 'Rotation (°)', type: 'range', value: Math.round(((o.rotation || 0) * 180 / Math.PI % 360 + 360) % 360), min: 0, max: 360, step: 15, onChange: (v) => handlePropertyChange('rotation', v * Math.PI / 180) },
 
             // KaTeX Section
             { label: '', type: 'separator', value: null, onChange: () => { } },
@@ -722,6 +776,13 @@ function App() {
             const v = obj as VectorObject;
             checkBounds(v.anchor.x, v.anchor.y, 10);
             checkBounds(v.tip.x, v.tip.y, 20); // Label margin
+            break;
+          }
+          case 'linearmarker': {
+            const lm = obj as LinearMarkerObject;
+            const margin = 10 + (lm.extensionLength || 0);
+            checkBounds(lm.anchor.x, lm.anchor.y, margin);
+            checkBounds(lm.tip.x, lm.tip.y, margin);
             break;
           }
           case 'text': {
@@ -947,7 +1008,7 @@ function App() {
       <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-between items-center z-10 shadow-sm h-12">
         <div className="flex items-center gap-3">
           <h1 className="text-xl text-gray-800 tracking-tight"><span className="font-bold">VEKTON</span> | Physics Illustrator</h1>
-          <span className="text-xs text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded">v1.00</span>
+          <span className="text-xs text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded">v1.01</span>
         </div>
         <div className="flex gap-2 items-center">
           {/* Phase 14: Drag Hint */}
@@ -1052,12 +1113,14 @@ function App() {
                         return <PulleyRenderer key={obj.id} center={(obj as PulleyObject).center} radius={(obj as PulleyObject).radius} hasHanger={(obj as PulleyObject).hasHanger} hangerLength={(obj as PulleyObject).hangerLength} hangerAngle={(obj as PulleyObject).hangerAngle} />;
                       case 'vector':
                         return <VectorRenderer key={obj.id} anchor={(obj as VectorObject).anchor} vector={new Vector2((obj as VectorObject).tip.x - (obj as VectorObject).anchor.x, (obj as VectorObject).tip.y - (obj as VectorObject).anchor.y)} label={(obj as VectorObject).label} showComponents={(obj as VectorObject).showComponents} flipLabel={(obj as VectorObject).flipLabel} fontSize={(obj as VectorObject).fontSize} color={(obj as VectorObject).color} fontFamily={fontFamily} bold={(obj as VectorObject).bold} italic={(obj as VectorObject).italic} lineStyle={(obj as VectorObject).lineStyle} strokeWidth={(obj as VectorObject).strokeWidth} headStyle={(obj as VectorObject).headStyle} arrowSize={(obj as VectorObject).arrowSize} arrowWidth={(obj as VectorObject).arrowWidth} />;
+                      case 'linearmarker':
+                        return <LinearMarkerRenderer key={obj.id} obj={obj as LinearMarkerObject} />;
                       case 'triangle':
                         return <TriangleRenderer key={obj.id} p1={(obj as TriangleObject).p1} p2={(obj as TriangleObject).p2} p3={(obj as TriangleObject).p3} />;
                       case 'circle':
                         return <CircleRenderer key={obj.id} center={(obj as CircleObject).center} radius={(obj as CircleObject).radius} />;
                       case 'text':
-                        return <TextRenderer key={obj.id} center={(obj as TextObject).center} content={(obj as TextObject).content} fontSize={(obj as TextObject).fontSize} fontFamily={fontFamily} bold={(obj as TextObject).bold} italic={(obj as TextObject).italic} />;
+                        return <TextRenderer key={obj.id} center={(obj as TextObject).center} content={(obj as TextObject).content} fontSize={(obj as TextObject).fontSize} rotation={(obj as TextObject).rotation} fontFamily={fontFamily} bold={(obj as TextObject).bold} italic={(obj as TextObject).italic} />;
 
                       // Circuit Renderers
                       case 'wire':
@@ -1153,7 +1216,7 @@ function App() {
                 const obj = objects.find(o => o.id === handle.objectId);
                 if (!obj) return null;
 
-                if (!['wall', 'spring', 'line', 'vector', 'triangle'].includes(obj.type)) return null;
+                if (!['wall', 'spring', 'line', 'vector', 'triangle', 'linearmarker', 'text', 'block'].includes(obj.type)) return null;
 
                 const calcAngle = (p1: Point, p2: Point) => {
                   const dx = p2.x - p1.x;
@@ -1175,10 +1238,38 @@ function App() {
                   else if (handle.handleType === 'p2') text = `${calcAngle(t.p2, t.p1)}°, ${calcAngle(t.p2, t.p3)}°`;
                   else if (handle.handleType === 'p3') text = `${calcAngle(t.p3, t.p1)}°, ${calcAngle(t.p3, t.p2)}°`;
                   else return null;
+                } else if (obj.type === 'text') {
+                  const t = obj as TextObject;
+                  // If dragging center, no angle. If dragging rotate handle, show angle.
+                  if (handle.handleType === 'rotate') {
+                    // Current rotation in degrees
+                    let deg = (t.rotation || 0) * 180 / Math.PI;
+                    // Normalize to 0-360 or -180 to 180?
+                    // User said: "Text horizontal is 0".
+                    // Standard: 0 (Right), 90 (Down/Clockwise) usually in SVG/Canvas y-down?
+                    // Let's just show standard degrees for now, 
+                    // maybe normalize to positive?
+                    deg = deg % 360;
+                    if (deg < 0) deg += 360;
+                    text = deg.toFixed(1) + '°';
+                  } else {
+                    return null;
+                  }
+                } else if (obj.type === 'block') {
+                  const b = obj as BlockObject;
+                  if (handle.handleType === 'rotate') {
+                    // Block Rotation Display
+                    let deg = (b.rotation || 0) * 180 / Math.PI;
+                    deg = deg % 360;
+                    if (deg < 0) deg += 360;
+                    text = deg.toFixed(1) + '°';
+                  } else {
+                    return null;
+                  }
                 } else {
                   let p1, p2;
-                  if (obj.type === 'vector') {
-                    const v = obj as VectorObject;
+                  if (obj.type === 'vector' || obj.type === 'linearmarker') {
+                    const v = obj as any; // VectorObject or LinearMarkerObject
                     p1 = v.anchor; p2 = v.tip;
                   } else {
                     const o = obj as any;
