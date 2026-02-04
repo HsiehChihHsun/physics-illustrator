@@ -25,6 +25,16 @@
 
 ---
 
+## 🖼️ 輸出範例圖檔
+
+<p align="center">
+  <img src="outputexample/example001.svg" width="30%" alt="力學範例 1" />
+  <img src="outputexample/example002.svg" width="30%" alt="力學範例 2" />
+  <img src="outputexample/example003.svg" width="30%" alt="電路範例" />
+</p>
+
+---
+
 ## 🚀 軟體主功能介紹
 
 VEKTON 旨在解決傳統繪圖軟體難以快速繪製物理元件的痛點。本軟體具備以下核心功能：

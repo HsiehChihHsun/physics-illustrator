@@ -25,7 +25,17 @@ Try it instantly in your browser without installation:
 
 ---
 
-## 🚀 Key Features
+## �️ Example Outputs
+
+<p align="center">
+  <img src="outputexample/example001.svg" width="30%" alt="Mechanics Example 1" />
+  <img src="outputexample/example002.svg" width="30%" alt="Mechanics Example 2" />
+  <img src="outputexample/example003.svg" width="30%" alt="Circuit Example" />
+</p>
+
+---
+
+## �🚀 Key Features
 
 VEKTON aims to solve the difficulty of quickly drawing physics components in traditional vector software. Core features include:
 
