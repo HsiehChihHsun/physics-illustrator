@@ -1,102 +1,105 @@
 # VEKTON | Physics Illustrator (v1.01)
 
-這是一款專為物理教學與講義製作設計的向量繪圖軟體。
-除了提供流暢的互動操作體驗，還能匯出高品質的 SVG 與 PNG 圖片，幫助使用者輕鬆製作專業的物理示意圖。
+> [!TIP]
+> **[繁體中文版 (Traditional Chinese)](README.zh-TW.md)**
+
+A specialized vector drawing tool designed for physics education and handout creation.
+VEKTON offers a smooth interactive experience and exports high-quality SVG and PNG images, helping users easily create professional physics diagrams.
 
 ---
 
-## 👨‍💻 開發者資訊
+## 👨‍💻 Developer Information
 
-**開發者聯絡信箱**: <hsiehchihhsun001@gmail.com>
+**Contact Email**: <hsiehchihhsun001@gmail.com>
 
 > [!NOTE]
 > **Donation Link**: (Coming Soon...)
-> 如果覺得這款軟體對您有幫助，歡迎隨喜贊助支持後續開發！
+> If you find this software helpful, donations to support future development are welcome!
 
 ---
 
-## 🌐 線上即時試用
+## 🌐 Online Demo
 
-無需安裝，開啟瀏覽器即可立即使用完整功能：
-👉 **[點此前往線上版 (Vercel)](https://physics-illustrator.vercel.app/)**
-
----
-
-## 🚀 軟體主功能介紹
-
-VEKTON 旨在解決傳統繪圖軟體難以快速繪製物理元件的痛點。本軟體具備以下核心功能：
-
-1. **專業物理元件庫**
-    - 內建各類常見物理模型：彈簧 (Spring)、滑輪 (Pulley)、物塊 (Block)、繩索 (Catenary/Line)、牆壁 (Wall) 等。
-    - 電路元件支援：電阻、電容、電感、電源 (AC/DC)、開關等。
-    - 向量工具：支援自動對齊、分量顯示與箭頭樣式調整。
-
-2. **高度客製化屬性**
-    - 所有物件皆可調整屬性，包括顏色、線條粗細、尺寸與旋轉角度。
-    - 支援文字與數學符號 (LaTeX) 輸入，方便標註物理量 (如 $\theta, \vec{F}, \Delta x$)。
-    - 提供多種字體選擇 (Inter, STIX Two Text) 以符合學術排版需求。
-
-3. **精確控制與互動**
-    - 支援物件吸附 (Snapping) 功能，輕鬆對齊網格與其他物件。
-    - 即時角度顯示，方便精確調整幾何關係。
-    - 直覺的拖曳操作與選取功能，支援多物件編輯。
-
-4. **高品質匯出**
-    - 支援一鍵匯出高解析度 **PNG** 圖片 (適合簡報與網頁)。
-    - 支援匯出向量 **SVG** 檔案 (適合印刷與進階編輯)。
-    - 自動裁切畫布，僅保留繪圖範圍。
+Try it instantly in your browser without installation:
+👉 **[Launch Online Version (Vercel)](https://physics-illustrator.vercel.app/)**
 
 ---
 
-## 💻 安裝與啟動教學 (Windows)
+## 🚀 Key Features
 
-如果您希望在**沒有網路**的情況下使用，或是想要在**自己的電腦離線執行**，請依照以下步驟操作：
+VEKTON aims to solve the difficulty of quickly drawing physics components in traditional vector software. Core features include:
 
-### 步驟零：下載專案檔案
+1. **Professional Physics Component Library**
+    - Built-in common physical models: Spring, Pulley, Block, Catenary/Rope, Wall, etc.
+    - Circuit components: Resistor, Capacitor, Inductor, Power Source (AC/DC), Switch, etc.
+    - Vector tools: Supports automatic snapping, component visualization, and arrow style customization.
 
-如果您不熟悉 Git 指令，請直接下載壓縮檔：
+2. **Highly Customizable Properties**
+    - All objects have adjustable properties, including color, line width, size, and rotation.
+    - Supports Text and Math Symbols (LaTeX) for labeling physical quantities (e.g., $\theta, \vec{F}, \Delta x$).
+    - Offers multiple font choices (Inter, STIX Two Text) to meet academic publishing needs.
 
-1. 在本專案的 GitHub 頁面右上方，找到綠色的 **"<> Code"** 按鈕。
-2. 點擊該按鈕，選擇選單中的 **"Download ZIP"**。
-3. 下載完成後，請務必**解壓縮** (按右鍵 -> 解壓縮全部) 到您的電腦中 (例如桌面)。
+3. **Precise Control & Interaction**
+    - **Snapping**: Easily align objects to the grid and other components.
+    - **Angle Display**: Real-time angle readout for precise geometric adjustments.
+    - **Drag & Drop**: Intuitive manipulation and multi-object selection.
 
-### 第一步：安裝環境 (Node.js)
+4. **High-Quality Export**
+    - **PNG Export**: High-resolution images suitable for presentations and web.
+    - **SVG Export**: Vector format suitable for printing and advanced editing.
+    - **Auto-Crop**: Automatically crops the canvas to preserve only the drawn content.
 
-1. 請前往 [Node.js 官方網站](https://nodejs.org/)。
-2. 下載並安裝 **"LTS" (長期支援版)**。
-3. 安裝過程中均點選「Next (下一步)」直到完成即可。
+---
 
-### 第二步：取得軟體並啟動
+## 💻 Installation & Usage (Windows)
 
-假設您已下載本專案程式碼 (或透過 Git 下載)，請開啟您存放此專案的資料夾。
+If you wish to use VEKTON **offline** or without an internet connection, please follow these steps:
 
-1. 在資料夾視窗的上方網址列輸入 `cmd` 並按 **Enter**，將會開啟黑色的終端機視窗。
-2. **首次使用**請依序複製並貼上以下指令 (滑鼠右鍵可貼上)：
+### Step 0: Download the Project
 
-    **指令 1：安裝必要元件 (僅需執行一次)**
+If you are not familiar with Git commands, you can download the project as a ZIP file:
+
+1. On the GitHub page, click the green **"<> Code"** button.
+2. Select **"Download ZIP"**.
+3. **Extract (Unzip)** the downloaded file to a folder on your computer (e.g., Desktop).
+
+### Step 1: Install Environment (Node.js)
+
+1. Visit the [Node.js Official Website](https://nodejs.org/).
+2. Download and install the **"LTS" (Long Term Support)** version.
+3. Click "Next" through the installer until finished.
+
+### Step 2: Run the Application
+
+Navigate to the folder where you extracted or cloned the project.
+
+1. Click the address bar at the top of the folder window, type `cmd`, and press **Enter** to open a terminal/command prompt.
+2. **First time setup**: Copy and paste the following commands (Right-click to paste):
+
+    **Command 1: Install Dependencies (Run once only)**
 
     ```bash
     npm install
     ```
 
-    *(請等待進度條跑完，看到 `added ... packages` 字樣代表完成)*
+    *(Wait for the progress bar to finish until you see text like `added ... packages`)*
 
-    **指令 2：啟動軟體**
+    **Command 2: Start the App**
 
     ```bash
     npm run dev
     ```
 
-3. 看到終端機顯示 `Local: http://localhost:5173/` 字樣時，請按住鍵盤 **Ctrl** 鍵並用滑鼠點擊該連結，瀏覽器將會自動開啟軟體畫面。
+3. When the terminal shows `Local: http://localhost:5173/`, hold **Ctrl** and click the link to open the application in your browser.
 
 ---
 
-### 常見問答
+### FAQ
 
-- **Q: 下次開啟還需要輸指令嗎？**
-  - A: 需要。每次使用時，請重複「第二步」的開啟終端機與 `npm run dev` 指令即可 (不用再 `npm install`)。或您可以直接雙擊資料夾中的 `start_app.bat` (若有的話)。
-- **Q: 畫面一片白或無法操作？**
-  - A: 請確認終端機視窗**沒有被關閉**。軟體運作時，終端機必須保持開啟。
+- **Q: Do I need to run commands every time?**
+  - A: Yes. You need to repeat **Step 2** (open terminal and run `npm run dev`) each time. You do *not* need to run `npm install` again. Alternatively, you can double-click `start_app.bat` if available.
+- **Q: The screen is white or unresponsive?**
+  - A: Please make sure the terminal window is **NOT closed**. The terminal must remain open for the software to run.
 
 ---
 
