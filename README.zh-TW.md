@@ -27,11 +27,17 @@
 
 ## 🖼️ 輸出範例圖檔
 
-<p align="center">
-  <img src="outputexample/example001.svg" width="30%" alt="力學範例 1" />
-  <img src="outputexample/example002.svg" width="30%" alt="力學範例 2" />
-  <img src="outputexample/example003.svg" width="30%" alt="電路範例" />
-</p>
+### 1. UI介面示範
+
+![UI介面示範](outputexample/UI.jpg)
+
+### 2. 輸出範例1
+
+![輸出範例1](outputexample/example004.png)
+
+### 3. 電路圖輸出範例
+
+![電路圖輸出範例](outputexample/example005.png)
 
 ---
 

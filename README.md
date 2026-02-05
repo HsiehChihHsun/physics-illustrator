@@ -27,11 +27,17 @@ Try it instantly in your browser without installation:
 
 ## �️ Example Outputs
 
-<p align="center">
-  <img src="outputexample/example001.svg" width="30%" alt="Mechanics Example 1" />
-  <img src="outputexample/example002.svg" width="30%" alt="Mechanics Example 2" />
-  <img src="outputexample/example003.svg" width="30%" alt="Circuit Example" />
-</p>
+### 1. UI Interface Demonstration
+
+![UI Interface Demonstration](outputexample/UI.jpg)
+
+### 2. Output Example 1
+
+![Output Example 1](outputexample/example004.png)
+
+### 3. Circuit Diagram Output Example
+
+![Circuit Diagram Output Example](outputexample/example005.png)
 
 ---
 
